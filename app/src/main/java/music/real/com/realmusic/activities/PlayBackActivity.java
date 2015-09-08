@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
@@ -20,6 +23,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import music.real.com.realmusic.PlayBackUtility;
 import music.real.com.realmusic.R;
@@ -41,10 +45,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         ImageView closeButton;
 //        private ViewPager viewPager;
         private CommonUtility commonUtility;
-       private HeadsetPlugReceiver myReceiver;
-
-
-
+        private HeadsetPlugReceiver myReceiver;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,7 +90,8 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         {
             songTitle.setText(commonUtility.getSongTitle());
             songAlbum.setText(commonUtility.getAlbum());
-            Picasso.with(getApplicationContext()).load(commonUtility.geturi()).into(albumArtImage);
+            setAlbumArt(commonUtility.geturi());
+//            Picasso.with(getApplicationContext()).load(commonUtility.geturi()).into(albumArtImage);
 
 
         }
@@ -217,7 +219,6 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
             default:
                 commonUtility.setRepeatState(0);
         }
-
         }
     public void updateUI()
     {
@@ -237,7 +238,9 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
             public void updateSongInfo(String title, String album, String artist,Uri artwork) {
                 songTitle.setText(title);
                 songAlbum.setText(album + " | " + artist);
-                Picasso.with(getApplicationContext()).load(artwork).into(albumArtImage);
+                setAlbumArt(artwork);
+
+//                Picasso.with(getApplicationContext()).load(artwork).into(albumArtImage);
 
             }
         });
@@ -260,6 +263,30 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
     {
         unbindService(serviceConnection);
 
+    }
+
+           /*                      Update AlbumArt                     */
+
+    public void setAlbumArt(Uri albumArt)
+    {
+        Picasso.with(getApplicationContext()).load(albumArt).into(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+
+                albumArtImage.setBackground(new BitmapDrawable(getApplicationContext().getResources(), bitmap));
+
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        });
     }
 
 

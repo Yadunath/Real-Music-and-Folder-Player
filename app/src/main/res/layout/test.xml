@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="#C35352">
+    >
 
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/imageView6"
+        android:layout_above="@+id/relativeLayout5"
+        />
 
     <SeekBar
         android:layout_width="fill_parent"
@@ -35,12 +41,13 @@
 
     <RelativeLayout
         android:id="@+id/relativeLayout5"
-        android:layout_width="312dp"
+        android:layout_width="match_parent"
         android:layout_height="85dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="40dp"
-        android:layout_marginLeft="10dp" >
+        android:background="#e1e1e1"
+        >
 
 
         <ImageButton
@@ -58,16 +65,17 @@
             android:background="@drawable/previous_button"
             android:layout_centerVertical="true"
             android:layout_toStartOf="@+id/imageButton"
-            android:layout_marginEnd="43dp" />
+            android:layout_marginEnd="20dp" />
 
         <ImageButton
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:id="@+id/imageButton3"
             android:background="@drawable/next_button"
-            android:layout_marginEnd="38dp"
-            android:layout_alignTop="@+id/imageButton2"
-            android:layout_alignParentEnd="true" />
+            android:layout_toEndOf="@+id/imageButton"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+             />
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/relativeLayout6"
@@ -79,7 +87,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:id="@+id/imageButton4"
-            android:background="@drawable/shuffle_1"
+            android:background="@drawable/white_shuffle"
             android:layout_alignTop="@+id/imageButton5"
             android:layout_alignParentStart="true"
             android:layout_marginStart="38dp" />
@@ -88,7 +96,7 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:id="@+id/imageButton5"
-            android:background="@drawable/repeat"
+            android:background="@drawable/white_repeat"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
             android:layout_marginEnd="45dp" />
@@ -101,12 +109,6 @@
         android:layout_above="@+id/relativeLayout6"
         android:id="@+id/relativeLayout4">
 
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/imageView6"
-            android:layout_margin="20dp"
-            />
 
     </RelativeLayout>
 
@@ -118,12 +120,12 @@
         android:id="@+id/relativeLayout">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:id="@+id/imageView5"
             android:layout_centerVertical="true"
             android:layout_marginLeft="20dp"
-            android:background="@drawable/down_arrow"/>
+            android:background="@drawable/white_arrow"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -152,7 +154,7 @@
             android:layout_height="30dp"
             android:id="@+id/imageView10"
             android:layout_above="@+id/songAlbum"
-            android:background="@drawable/menu"
+            android:background="@drawable/white_menu"
             android:layout_alignParentRight="true"
             android:layout_marginRight="15dp"/>
     </RelativeLayout>
