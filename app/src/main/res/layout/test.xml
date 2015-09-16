@@ -56,7 +56,7 @@
             android:id="@+id/imageButton"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
-            android:background="@drawable/play_button"/>
+            android:background="@drawable/next_button_xml"/>
 
         <ImageButton
             android:layout_width="50dp"

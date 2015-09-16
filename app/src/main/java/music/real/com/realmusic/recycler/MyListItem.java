@@ -60,7 +60,7 @@ public class MyListItem {
     public static MyListItem forList(Cursor cursor)
     {
         MyListItem myListItem=new MyListItem();
-        myListItem.setName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME)));
+        myListItem.setName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)));
         myListItem.setArtistName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST)));
         return myListItem;
     }

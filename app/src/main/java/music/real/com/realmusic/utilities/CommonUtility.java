@@ -26,11 +26,13 @@ public class CommonUtility   {
     private static String albumName;
     private static Uri albumArtUri;
     private static boolean playerStatus=false;
+    private static boolean controllerStatus=false;
     private static int shuffleState=0;
     private static int repeatState=0;
     private static String totalDuration,currentDuration;
     private static String subFolderName;
     private static int currentFragmentId;
+
     public CommonUtility() {
     }
 
@@ -55,7 +57,7 @@ public class CommonUtility   {
     {
         return totalDuration;
     }
-    public static boolean getStatus()
+    public static boolean getPlayerStatus()
     {
         return playerStatus;
     }
@@ -76,6 +78,12 @@ public class CommonUtility   {
     {
         return  currentFragmentId;
     }
+
+    public static boolean getControllerStatus()
+    {
+        return controllerStatus;
+    }
+
 
     public void setSongTitle(String songTitle)
     {
@@ -117,6 +125,9 @@ public class CommonUtility   {
     {
         this.currentFragmentId=id;
     }
-
+    public void setControlerStatus(boolean status)
+    {
+        this.controllerStatus=status;
+    }
 
 }

@@ -674,9 +674,18 @@ public class FilesFoldersFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        Log.v("tag","tagggg");
+        commonUtility.setCurrentFragmentId(1);
+
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         commonUtility.setCurrentFragmentId(1);
+
     }
 
     /*

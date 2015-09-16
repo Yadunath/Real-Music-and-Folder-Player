@@ -26,7 +26,6 @@ public class TracksFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -47,7 +46,9 @@ public class TracksFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mCursor=getActivity().managedQuery(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,null,null,null);
+        String order= MediaStore.Audio.Media.TITLE;
+
+        mCursor=getActivity().managedQuery(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,null,null,order+" COLLATE NOCASE ASC; ");
         TrackListCursorAdapter listCursorAdapter=new TrackListCursorAdapter(getActivity(),mCursor,0,"");
         mRecyclerView.setAdapter(listCursorAdapter);
 

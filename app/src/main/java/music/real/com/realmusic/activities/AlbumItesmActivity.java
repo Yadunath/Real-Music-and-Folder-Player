@@ -58,7 +58,7 @@ public class AlbumItesmActivity extends AppCompatActivity {
                 MediaStore.Audio.Media.DISPLAY_NAME	,MediaStore.Audio.Media. MIME_TYPE, MediaStore.Audio.Media.ALBUM, MediaStore.Audio.Media.ALBUM_ID, MediaStore.Audio.Media.ARTIST};
         String where=null;
         String wherVal[]={mediaid};
-        String order= MediaStore.Audio.Media.DISPLAY_NAME;
+        String order= MediaStore.Audio.Media.TITLE;
         TrackListCursorAdapter listCursorAdapter=null;
         switch (type)
         {
@@ -94,13 +94,11 @@ public class AlbumItesmActivity extends AppCompatActivity {
         playBackIntent.putExtra("playlistid", playlistid);
         Log.v(Tag,playlistid);
         startActivity(playBackIntent);
-
     }
-
     @Override
     protected void onResume() {
         super.onResume();
-        if (commonUtility.getStatus())
+        if (commonUtility.getControllerStatus())
         {
             ControlFragment fragment=new ControlFragment();
             android.app.FragmentManager fragmentManager=getFragmentManager();

@@ -52,7 +52,7 @@ public class GridCursorAdapter extends CursorRecyclerViewAdapter<GridCursorAdapt
             mImageView=(ImageView)view.findViewById(R.id.imageView);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mImageView.getLayoutParams();
             params.width=mWidth;
-            params.height=mHeight;
+            params.height=mWidth + (mWidth/3);
             mImageView.setLayoutParams(params);
             this.mView=view;
         }

@@ -11,4 +11,5 @@ interface PlayBackUtility {
     void previousSong();
     void seekSong(int progress);
     void stopSong();
+    void savedDatas(int type,int position,String playlistId);
 }

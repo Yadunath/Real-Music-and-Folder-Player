@@ -3,10 +3,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_height="65dp"
     android:background="@color/playback_control_bg"
 >
-
     <ImageView
         android:id="@+id/album_art"
         tools:src="@drawable/ic_launcher"
@@ -32,8 +31,8 @@
             android:maxLines="1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textColor="#000000"/>
+            android:textSize="12sp"
+            android:textColor="#ffffff"/>
         <TextView
             android:id="@+id/artist"
             android:text="John Doe and Band"
@@ -41,7 +40,8 @@
             android:maxLines="1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"/>
+            android:textColor="#ffffff"
+            android:textSize="10sp"/>
         <TextView
             android:id="@+id/extra_info"
             android:text="casting to MyCast"
@@ -56,10 +56,9 @@
     <ImageButton
         android:id="@+id/play_pause"
         android:layout_centerVertical="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:src="@drawable/old_play"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:background="@drawable/new_pause"
         android:layout_alignParentEnd="true"
 
         />

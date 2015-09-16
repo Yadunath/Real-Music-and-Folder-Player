@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void setupViewPager(ViewPager viewPager) {
+        commonUtility.setCurrentFragmentId(1);
         Adapter adapter = new Adapter(getSupportFragmentManager());
         adapter.addFragment(new TracksFragment(), "Tracks");
         adapter.addFragment(new AlbumsFragment(), "Albums");
@@ -111,13 +113,12 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            Log.v("tag","po"+position);
             return mFragments.get(position);
         }
 
         @Override
         public int getCount() {
-            return mFragments.size();
+            return mFragmentTitles.size();
         }
 
         @Override
@@ -155,7 +156,6 @@ public class MainActivity extends AppCompatActivity {
         cursor.moveToPosition(position);
         String dataPath=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
 
-
     }
 
 
@@ -163,11 +163,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
-        if (commonUtility.getStatus())
+        if (commonUtility.getControllerStatus())
         {
-            ControlFragment fragment=new ControlFragment();
-            android.app.FragmentManager fragmentManager=getFragmentManager();
-            fragmentManager.beginTransaction().replace(R.id.bottombar,fragment).commit();
+            Handler handler=new Handler();
+
+                    ControlFragment fragment = new ControlFragment();
+                    android.app.FragmentManager fragmentManager = getFragmentManager();
+                    fragmentManager.beginTransaction().replace(R.id.bottombar, fragment).commit();
+
+
         }
 
     }

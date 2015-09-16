@@ -33,7 +33,7 @@ import music.real.com.realmusic.utilities.CommonUtility;
 public class ControlFragment extends Fragment implements View.OnClickListener {
     private TextView songTitle,songAlbum;
     private ImageView albumArtView;
-    private ImageButton playButton;
+    public static ImageButton playButton;
     private CommonUtility commonUtility;
     PlayBackUtility mInterface;
     public ControlFragment() {
@@ -83,6 +83,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
+        updateOnResume();
     }
 
     @Override
@@ -92,9 +93,11 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
             case R.id.play_pause:
                 try {
                     mInterface.pauseSong();
+
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
+                updatePlayButton();
                 break;
         }
     }
@@ -102,7 +105,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-      releaseService();
+//      releaseService();
     }
 
     public void releaseService()
@@ -110,6 +113,30 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
         getActivity().unbindService(serviceConnection);
 
     }
+
+    public void updateOnResume()
+    {
+        if (commonUtility.getPlayerStatus())
+        {
+            playButton.setBackgroundResource(R.drawable.new_pause);
+        }
+        else
+        {
+            playButton.setBackgroundResource(R.drawable.new_play);
+        }
+    }
+    public void updatePlayButton()
+    {
+        if (commonUtility.getPlayerStatus())
+        {
+            playButton.setBackgroundResource(R.drawable.new_pause);
+        }
+        else
+        {
+            playButton.setBackgroundResource(R.drawable.new_play);
+        }
+    }
+
     /*                      Connecting with service             */
     private ServiceConnection serviceConnection=new ServiceConnection() {
         @Override

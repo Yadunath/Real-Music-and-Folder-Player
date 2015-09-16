@@ -6,10 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -17,6 +19,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -36,7 +40,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         private String Tag="PLAYBACKACTIVITY";
         public static PlayBackUtility mInterface;
         private int position,type;
-        private ImageButton playButton;
+        public static ImageButton playButton;
         private ImageButton nextButton,previousButton,shuffleButton,repeatButton;
         private String playlistId;
         private SeekBar seekBar;
@@ -46,23 +50,27 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
 //        private ViewPager viewPager;
         private CommonUtility commonUtility;
         private HeadsetPlugReceiver myReceiver;
+        private UiUpdater uiUpdater;
+        int noofsongsplayed=0;
+        private SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.test);
-        this.bindService(new Intent(PlayBackActivity.this, MusicPlaybackService.class), serviceConnection, BIND_AUTO_CREATE);
+        setContentView(R.layout.test_2);
+        this.startService(new Intent(PlayBackActivity.this, MusicPlaybackService.class));
         playButton=(ImageButton)findViewById(R.id.imageButton);
-        nextButton=(ImageButton)findViewById(R.id.imageButton3);
-        previousButton=(ImageButton)findViewById(R.id.imageButton2);
+        nextButton=(ImageButton)findViewById(R.id.imageButton2);
+        previousButton=(ImageButton)findViewById(R.id.imageButton3);
         seekBar=(SeekBar)findViewById(R.id.seekBar);
         songTitle=(TextView)findViewById(R.id.songTittle);
         songAlbum=(TextView)findViewById(R.id.songAlbum);
+        songArtist=(TextView)findViewById(R.id.textView2);
         albumArtImage=(ImageView)findViewById(R.id.imageView6);
-        shuffleButton=(ImageButton)findViewById(R.id.imageButton4);
-        closeButton=(ImageView)findViewById(R.id.imageView5);
-        repeatButton=(ImageButton)findViewById(R.id.imageButton5);
-        currentDurationText=(TextView)findViewById(R.id.textView);
-        totalDurationText=(TextView)findViewById(R.id.textView2);
+        shuffleButton=(ImageButton)findViewById(R.id.imageButton5);
+        closeButton=(ImageView)findViewById(R.id.imageView7);
+        repeatButton=(ImageButton)findViewById(R.id.imageButton4);
+        currentDurationText=(TextView)findViewById(R.id.textView3);
+        totalDurationText=(TextView)findViewById(R.id.textView4);
 
 //        viewPager=(ViewPager)findViewById(R.id.imageView6);
 
@@ -72,7 +80,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         seekBar.setOnSeekBarChangeListener(this);
         shuffleButton.setOnClickListener(this);
         repeatButton.setOnClickListener(this);
-        closeButton.setOnClickListener(this);
+//        closeButton.setOnClickListener(this);
         Intent getIntent=getIntent();
         position=getIntent.getIntExtra("position", 0);
         type=getIntent.getIntExtra("type", 0);
@@ -90,9 +98,9 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         {
             songTitle.setText(commonUtility.getSongTitle());
             songAlbum.setText(commonUtility.getAlbum());
+            songArtist.setText(commonUtility.getAlbum());
             setAlbumArt(commonUtility.geturi());
 //            Picasso.with(getApplicationContext()).load(commonUtility.geturi()).into(albumArtImage);
-
 
         }
         else
@@ -102,23 +110,34 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
                 public void run() {
                     try {
                         mInterface.playSong(type,position,playlistId);
-
+                        playButton.setBackgroundResource(R.drawable.new_pause);
+                        commonUtility.setControlerStatus(true);
+                        setSharedPreferences();
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
                 }
-            },200);
+            },300);
 
-            commonUtility.setPlayerStatus(true);
+
         }
 
         seekBar.setProgress(0);
         seekBar.setMax(100);
+        uiUpdater=new UiUpdater();
+
         updateUI();
 //        setButtonOnResume();
 
     }
 
+    public void setSharedPreferences()
+    {
+        sharedPreferences=getSharedPreferences("SONGINFO",MODE_PRIVATE);
+        SharedPreferences.Editor editor=sharedPreferences.edit();
+        editor.putBoolean("launchTime",true);
+        editor.commit();
+    }
     @Override
     public void onClick(View view) {
         switch (view.getId())
@@ -130,24 +149,24 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
                     e.printStackTrace();
                 }
                 break;
-            case R.id.imageButton3:
+            case R.id.imageButton2:
                 try {
                     mInterface.nextSong();
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
                 break;
-            case R.id.imageButton2:
+            case R.id.imageButton3:
                 try {
                     mInterface.previousSong();
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
                 break;
-            case R.id.imageButton4:
+            case R.id.imageButton5:
                     setShuffle();
                 break;
-            case R.id.imageButton5:
+            case R.id.imageButton4:
                     setRepeat();
                 break;
             case R.id.imageView5:
@@ -160,12 +179,12 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         if (commonUtility.getShuffleState()==0)
         {
             commonUtility.setShuffleState(1);
-            shuffleButton.setImageResource(R.drawable.shuffle_pressed);
+            shuffleButton.setBackgroundResource(R.drawable.new_shuffle_on);
         }
         else
         {
             commonUtility.setShuffleState(0);
-            shuffleButton.setImageResource(R.drawable.shuffle);
+            shuffleButton.setBackgroundResource(R.drawable.new_shuffle);
         }
     }
 
@@ -175,16 +194,16 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         {
             case 0:
                 commonUtility.setRepeatState(1);
-                repeatButton.setImageResource(R.drawable.repeat_one);
+                repeatButton.setBackgroundResource(R.drawable.new_repeat_one);
                 break;
             case 1:
                 commonUtility.setRepeatState(2);
-                repeatButton.setImageResource(R.drawable.repeat_all);
+                repeatButton.setBackgroundResource(R.drawable.new_repeat_all);
 
                 break;
             case 2:
                 commonUtility.setRepeatState(0);
-                repeatButton.setImageResource(R.drawable.repeat);
+                repeatButton.setBackgroundResource(R.drawable.new_repeat);
                 break;
             default:
                 commonUtility.setRepeatState(0);
@@ -192,11 +211,11 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         }
         if (commonUtility.getShuffleState()==0)
         {
-            shuffleButton.setImageResource(R.drawable.shuffle);
+            shuffleButton.setBackgroundResource(R.drawable.new_shuffle);
         }
         else
         {
-            shuffleButton.setImageResource(R.drawable.shuffle_pressed);
+            shuffleButton.setBackgroundResource(R.drawable.new_shuffle_on);
         }
     }
 
@@ -205,24 +224,32 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
     {
         switch (commonUtility.getRepeatState()) {
             case 0:
-                repeatButton.setImageResource(R.drawable.repeat);
+                repeatButton.setImageResource(R.drawable.new_repeat);
                 break;
             case 1:
-                commonUtility.setRepeatState(2);
-                repeatButton.setImageResource(R.drawable.repeat_one);
+                repeatButton.setImageResource(R.drawable.new_repeat_one);
 
                 break;
             case 2:
-                commonUtility.setRepeatState(0);
-                repeatButton.setImageResource(R.drawable.repeat_all);
+                repeatButton.setImageResource(R.drawable.new_repeat_all);
                 break;
             default:
-                commonUtility.setRepeatState(0);
+
+        }
+        switch (commonUtility.getShuffleState())
+        {
+            case 0:
+                shuffleButton.setImageResource(R.drawable.new_shuffle);
+                break;
+            case 1:
+                shuffleButton.setImageResource(R.drawable.new_shuffle_on);
+                break;
         }
         }
+
     public void updateUI()
     {
-        UiUpdater uiUpdater=new UiUpdater();
+        noofsongsplayed++;
         uiUpdater.setOnSeekListener(new UiUpdater.updateSeekbar() {
             @Override
             public void updateSeekBar(int progress) {
@@ -238,6 +265,8 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
             public void updateSongInfo(String title, String album, String artist,Uri artwork) {
                 songTitle.setText(title);
                 songAlbum.setText(album + " | " + artist);
+                songArtist.setText(album + " | " + artist);
+
                 setAlbumArt(artwork);
 
 //                Picasso.with(getApplicationContext()).load(artwork).into(albumArtImage);
@@ -248,20 +277,45 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onResume() {
         super.onResume();
+        this.bindService(new Intent(PlayBackActivity.this, MusicPlaybackService.class), serviceConnection, BIND_AUTO_CREATE);
+        updateOnResume();
+//        setButtonOnResume();
         IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
-//        registerReceiver(myReceiver, filter);
+
+//      registerReceiver(myReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (commonUtility.getPlayerStatus())
+        {
+            
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        releaseService();
+//        releaseService();
     }
 
 
     public void releaseService()
     {
         unbindService(serviceConnection);
+
+    }
+    public void updateOnResume()
+    {
+        if (commonUtility.getPlayerStatus())
+        {
+            playButton.setBackgroundResource(R.drawable.new_pause);
+        }
+        else
+        {
+            playButton.setBackgroundResource(R.drawable.new_play);
+        }
 
     }
 
@@ -287,6 +341,20 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
 
             }
         });
+    }
+
+    /*          change status bar color             */
+
+    public void changeStatusbarColor(int color)
+    {
+        if (Integer.valueOf(Build.VERSION.SDK)>21)
+        {
+            Window window = this.getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.setStatusBarColor(color);
+        }
+
     }
 
 

@@ -14,6 +14,7 @@ import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -27,6 +28,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
+import android.os.PowerManager;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
@@ -38,18 +40,19 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import music.real.com.realmusic.PlayBackUtility;
 import music.real.com.realmusic.R;
+import music.real.com.realmusic.activities.PlayBackActivity;
+import music.real.com.realmusic.fragments.ControlFragment;
 import music.real.com.realmusic.receiver.NotificationBroadcast;
 import music.real.com.realmusic.utilities.CommonUtility;
 import music.real.com.realmusic.utilities.UiUpdater;
 import music.real.com.realmusic.utilities.Utilities;
 
-public class MusicPlaybackService extends Service implements OnCompletionListener,OnAudioFocusChangeListener {
+public class MusicPlaybackService extends Service implements OnCompletionListener,OnAudioFocusChangeListener,MediaPlayer.OnErrorListener {
 	
 	public static MediaPlayer musicPlayer =new MediaPlayer();
 	String name;
 	public static int pos;
 	boolean repeat=false;
-	private boolean playing=false;
 	private Handler mHandler=new Handler();
 
 	private Utilities utils=new Utilities();
@@ -71,7 +74,8 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 	public static final String NOTIFY_PLAY = "com.music.audioplayer.play";
 	public static final String NOTIFY_NEXT = "com.music.audioplayer.next";
 
-
+	private SharedPreferences sharedPreferences;
+	SharedPreferences.Editor editor;
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
@@ -85,9 +89,19 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 	public void onCreate() {
 		// TODO Auto-generated method stub
 		super.onCreate();
+
 		commonUtility=new CommonUtility();
 
 		audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+
+		// Make sure the media player will acquire a wake-lock while
+		// playing. If we don't do that, the CPU might go to sleep while the
+		// song is playing, causing playback to stop.
+
+		musicPlayer.setWakeMode(MusicPlaybackService.this, PowerManager.PARTIAL_WAKE_LOCK);
+
+		Log.v("wakeLock","enabled");
+
 		RegisterRemoteClient();
 		if (musicPlayer.isPlaying())
 		{
@@ -99,21 +113,16 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 			remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
 
 		}
+		sharedPreferences=getSharedPreferences("SONGINFO",MODE_PRIVATE);
+		editor=sharedPreferences.edit();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 
-		return super.onStartCommand(intent, flags, startId);
 
-	}
+		return START_STICKY;
 
-	@Override
-	public void onDestroy() {
-		// TODO Auto-generated method stub
-		playing=false;
-		super.onDestroy();
-		
 	}
 
 
@@ -121,6 +130,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 	{
 
 		musicPlayer.reset();
+		musicPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 		try {
 			musicPlayer.setDataSource(datapath);
 			musicPlayer.prepare();
@@ -129,22 +139,22 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 			e.printStackTrace();
 		}
 		musicPlayer.setOnCompletionListener(this);
+		musicPlayer.setOnErrorListener(this);
 		updateprogressbar();
 		setNotificationLayout();
+		commonUtility.setPlayerStatus(true);
 		UpdateMetadata();
 		remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
-
-
 	}
 
 	public void getCursor( int type,String playlistId)
 	{
-		String order= MediaStore.Audio.Media.DISPLAY_NAME;
+		String order= MediaStore.Audio.Media.TITLE;
 		switch (type)
 		{
 
 			case TYPE_TRACKS:
-				mCursor=getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,null,null,null);
+				mCursor=getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,null,null,order+" COLLATE NOCASE ASC; ");
 				break;
 			case TYPE_ALBUMS:
 				String where= MediaStore.Audio.Media.ALBUM_ID + "=?";
@@ -161,7 +171,8 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 
 				String wherFolder=MediaStore.Audio.Media.DATA + " like ? "+" and "+MediaStore.Audio.Media.DATA + " not like ?";
 				String whereValue[]=new String[]{"%"+ playlistId +"%","%"+ commonUtility.getSubFolderName() +"%"};
-				mCursor=getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,wherFolder,whereValue,order+" COLLATE NOCASE ASC; ");
+				String order1= MediaStore.Audio.Media.DISPLAY_NAME;
+				mCursor=getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,wherFolder,whereValue,order1+" COLLATE NOCASE ASC; ");
 				break;
 
 		}
@@ -169,6 +180,8 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 	}
 	public String getDatapath()
 	{
+		editor.putInt("trackposition", trackPosition);
+		editor.commit();
 		mCursor.moveToPosition(trackPosition);
 		String dataPath=mCursor.getString(mCursor.getColumnIndex(MediaStore.Audio.Media.DATA));
 		String songTitle=mCursor.getString(mCursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
@@ -185,25 +198,37 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 	}
 	public void setPlaySong(int type,int position,String playlistId)
 	{
+
 		trackPosition=position;
 		getCursor(type, playlistId);
+		editor.putInt("cursortype", type);
+		editor.putString("playlistId", playlistId);
+		editor.commit();
 		mediaPlayBack(getDatapath());
 
 	}
 	public void pauseSong()
 	{
 
-		if (musicPlayer.isPlaying())
-		{
-			musicPlayer.pause();
+		if (musicPlayer!=null) {
+			if (musicPlayer.isPlaying()) {
+				musicPlayer.pause();
+				PlayBackActivity.playButton.setBackgroundResource(R.drawable.new_play);
+				commonUtility.setPlayerStatus(false);
 			remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
 
+			} else {
+				musicPlayer.start();
+				PlayBackActivity.playButton.setBackgroundResource(R.drawable.new_pause);
+				commonUtility.setPlayerStatus(true);
+
+			remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
+
+			}
 		}
 		else
 		{
-			musicPlayer.start();
-			remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
-
+			mediaPlayBack(getDatapath());
 		}
 	}
 	public void stopSong()
@@ -211,6 +236,8 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 		if (musicPlayer.isPlaying())
 		{
 			musicPlayer.pause();
+			commonUtility.setPlayerStatus(false);
+
 			remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
 
 		}
@@ -221,7 +248,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 
 		if (commonUtility.getRepeatState()==0)
 		{
-			if (mCursor.getCount()==trackPosition)
+			if (mCursor.getCount()-1==trackPosition)
 			{
 
 			}
@@ -234,6 +261,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 				}
 				else
 				{
+
 					trackPosition++;
 					mediaPlayBack(getDatapath());
 				}
@@ -242,6 +270,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 		}
 		else if (commonUtility.getRepeatState()==1)
 		{
+
 			mediaPlayBack(getDatapath());
 		}
 		else if (commonUtility.getRepeatState()==2) {
@@ -252,6 +281,8 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 			}
 			else
 			{
+
+
 				trackPosition++;
 				mediaPlayBack(getDatapath());
 			}
@@ -287,6 +318,23 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 		updateprogressbar();
 	}
 
+	public void restoreCursor(int type,int trackPosition,String playlistId)
+	{
+		this.trackPosition=trackPosition;
+		getCursor(type, playlistId);
+//		getDatapath();
+		mCursor.moveToPosition(trackPosition);
+		String dataPath=mCursor.getString(mCursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+		String songTitle=mCursor.getString(mCursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
+		String albumName=mCursor.getString(mCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM));
+		String artistName=mCursor.getString(mCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
+		int albumId=mCursor.getInt(mCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
+		Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
+		Uri uriArtWork = ContentUris.withAppendedId(sArtworkUri, albumId);
+		commonUtility.setSongTitle(songTitle);
+		commonUtility.setAlbumName(albumName);
+		commonUtility.setAlbumArtUri(uriArtWork);
+		}
 
 	public void  setNotificationLayout()
 	{
@@ -311,8 +359,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 		status.flags |= Notification.FLAG_AUTO_CANCEL | Notification.FLAG_SHOW_LIGHTS;
 		status.icon = R.drawable.ic_launcher;
 		setListeners(notificationViews);
-//		startForeground(1458, status);
-
+		startForeground(1458, status);
 
 	}
 	public void setListeners(RemoteViews view) {
@@ -436,6 +483,12 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 		Log.v("number",""+number);
 		return number;
 	}
+		/*						Save playBack info in sharedPreference*/
+	public void savePlayBackInfo()
+	{
+		SharedPreferences.Editor editor=sharedPreferences.edit();
+
+	}
 	@Override
 	public void onCompletion(MediaPlayer mediaPlayer) {
 		nextSong();
@@ -444,6 +497,12 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 	@Override
 	public void onAudioFocusChange(int i) {
 
+	}
+
+	@Override
+	public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
+		Log.v("ERror listener","trav,error"+mediaPlayer.getTrackInfo());
+		return true;
 	}
 
 	static class PlaybackStub extends PlayBackUtility.Stub
@@ -484,6 +543,10 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 			playbackStubWeakReference.get().stopSong();
 		}
 
+		@Override
+		public void savedDatas(int type, int position, String playlistId) throws RemoteException {
+			playbackStubWeakReference.get().restoreCursor(type,position,playlistId);
+		}
 	}
 	private final IBinder playbackBinder=new PlaybackStub(this);
 
