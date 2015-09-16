@@ -224,14 +224,14 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
     {
         switch (commonUtility.getRepeatState()) {
             case 0:
-                repeatButton.setImageResource(R.drawable.new_repeat);
+                repeatButton.setBackgroundResource(R.drawable.new_repeat);
                 break;
             case 1:
-                repeatButton.setImageResource(R.drawable.new_repeat_one);
+                repeatButton.setBackgroundResource(R.drawable.new_repeat_one);
 
                 break;
             case 2:
-                repeatButton.setImageResource(R.drawable.new_repeat_all);
+                repeatButton.setBackgroundResource(R.drawable.new_repeat_all);
                 break;
             default:
 
@@ -239,10 +239,10 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         switch (commonUtility.getShuffleState())
         {
             case 0:
-                shuffleButton.setImageResource(R.drawable.new_shuffle);
+                shuffleButton.setBackgroundResource(R.drawable.new_shuffle);
                 break;
             case 1:
-                shuffleButton.setImageResource(R.drawable.new_shuffle_on);
+                shuffleButton.setBackgroundResource(R.drawable.new_shuffle_on);
                 break;
         }
         }
@@ -279,7 +279,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         super.onResume();
         this.bindService(new Intent(PlayBackActivity.this, MusicPlaybackService.class), serviceConnection, BIND_AUTO_CREATE);
         updateOnResume();
-//        setButtonOnResume();
+        setButtonOnResume();
         IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
 
 //      registerReceiver(myReceiver, filter);
