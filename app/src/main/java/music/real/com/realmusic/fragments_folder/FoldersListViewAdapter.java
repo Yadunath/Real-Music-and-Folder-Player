@@ -108,7 +108,7 @@ public class FoldersListViewAdapter extends ArrayAdapter<String> {
 		
 		//Set the icon based on whether the item is a folder or a file.
 		if (mFileFolderTypeList.get(position)==FilesFoldersFragment.FOLDER) {
-			holder.fileFolderIcon.setImageResource(R.drawable.icon_folderblue);
+			holder.fileFolderIcon.setImageResource(R.drawable.new_folder_icon);
 			convertView.setTag(R.string.folder_list_item_type, FilesFoldersFragment.FOLDER);
 
 

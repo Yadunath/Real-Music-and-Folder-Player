@@ -213,26 +213,25 @@ public class FilesFoldersFragment extends Fragment {
      */
     private void getDir(String dirPath, Parcelable restoreState) {
 
-		fileFolderNameList = new ArrayList<String>();
-		fileFolderPathList = new ArrayList<String>();
-		fileFolderSizeList = new ArrayList<String>();
-		fileFolderTypeList = new ArrayList<Integer>();
-		
-		File f = new File(dirPath);
-		File[] files = f.listFiles();
+        fileFolderNameList = new ArrayList<String>();
+        fileFolderPathList = new ArrayList<String>();
+        fileFolderSizeList = new ArrayList<String>();
+        fileFolderTypeList = new ArrayList<Integer>();
+
+        File f = new File(dirPath);
+        File[] files = f.listFiles();
 
         if (files!=null) {
 
             //Sort the files by name.
-			Arrays.sort(files, NameFileComparator.NAME_INSENSITIVE_COMPARATOR);
+            Arrays.sort(files, NameFileComparator.NAME_INSENSITIVE_COMPARATOR);
 
+            for(int i=0; i < files.length; i++) {
 
-			for(int i=0; i < files.length; i++) {
-				
-				File file = files[i];
-				if(file.isHidden()==SHOW_HIDDEN_FILES && file.canRead()) {
-					
-					if (file.isDirectory()) {
+                File file = files[i];
+                if(file.isHidden()==SHOW_HIDDEN_FILES && file.canRead()) {
+
+                    if (file.isDirectory()) {
 
                         /*
 						 * Starting with Android 4.2, /storage/emulated/legacy/...
@@ -247,109 +246,110 @@ public class FilesFoldersFragment extends Fragment {
                             filePath = file.getAbsolutePath();
 
                         fileFolderPathList.add(filePath);
-						fileFolderNameList.add(file.getName());
-						File[] listOfFiles = file.listFiles();
-						
-						if (listOfFiles!=null) {
-							fileFolderTypeList.add(FOLDER);
-							if (listOfFiles.length==1) {
-								fileFolderSizeList.add("" + listOfFiles.length + " item");
-							} else {
-								fileFolderSizeList.add("" + listOfFiles.length + " items");
-							}
-							
-						} else {
-							fileFolderTypeList.add(FOLDER);
-							fileFolderSizeList.add("Unknown items");
-						}
-						
-					} else {
-						
-						try {
-							String path = file.getCanonicalPath();
-							fileFolderPathList.add(path);
-						} catch (IOException e) {
-							continue;
-						}
-						
-						fileFolderNameList.add(file.getName());
-						String fileName = "";
-						try {
-							fileName = file.getCanonicalPath();
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-						//Add the file element to fileFolderTypeList based on the file type.
-						if (getFileExtension(fileName).equalsIgnoreCase("mp3") ||
-							getFileExtension(fileName).equalsIgnoreCase("3gp") ||
-							getFileExtension(fileName).equalsIgnoreCase("mp4") ||
-							getFileExtension(fileName).equalsIgnoreCase("m4a") ||
-							getFileExtension(fileName).equalsIgnoreCase("aac") ||
-							getFileExtension(fileName).equalsIgnoreCase("ts") ||
-							getFileExtension(fileName).equalsIgnoreCase("flac") ||
-							getFileExtension(fileName).equalsIgnoreCase("mid") ||
-							getFileExtension(fileName).equalsIgnoreCase("xmf") ||
-							getFileExtension(fileName).equalsIgnoreCase("mxmf") ||
-							getFileExtension(fileName).equalsIgnoreCase("midi") ||
-							getFileExtension(fileName).equalsIgnoreCase("rtttl") ||
-							getFileExtension(fileName).equalsIgnoreCase("rtx") ||
-							getFileExtension(fileName).equalsIgnoreCase("ota") ||
-							getFileExtension(fileName).equalsIgnoreCase("imy") ||
-							getFileExtension(fileName).equalsIgnoreCase("ogg") ||
-							getFileExtension(fileName).equalsIgnoreCase("mkv") ||
-							getFileExtension(fileName).equalsIgnoreCase("wav")) {
-							
-							//The file is an audio file.
-							fileFolderTypeList.add(AUDIO_FILE);
-							fileFolderSizeList.add("" + getFormattedFileSize(file.length()));
-							
-						} else if (getFileExtension(fileName).equalsIgnoreCase("jpg") ||
-								   getFileExtension(fileName).equalsIgnoreCase("gif") ||
-								   getFileExtension(fileName).equalsIgnoreCase("png") ||
-								   getFileExtension(fileName).equalsIgnoreCase("bmp") ||
-								   getFileExtension(fileName).equalsIgnoreCase("webp")) {
-							
-							//The file is a picture file.
-							fileFolderTypeList.add(PICTURE_FILE);
-							fileFolderSizeList.add("" + getFormattedFileSize(file.length()));
-							
-						} else if (getFileExtension(fileName).equalsIgnoreCase("3gp") ||
-								   getFileExtension(fileName).equalsIgnoreCase("mp4") ||
-								   getFileExtension(fileName).equalsIgnoreCase("3gp") ||
-								   getFileExtension(fileName).equalsIgnoreCase("ts") ||
-								   getFileExtension(fileName).equalsIgnoreCase("webm") ||
-								   getFileExtension(fileName).equalsIgnoreCase("mkv")) {
-							
-							//The file is a video file.
-							fileFolderTypeList.add(VIDEO_FILE);
-							fileFolderSizeList.add("" + getFormattedFileSize(file.length()));
-							
-						} else {
-							
-							//We don't have an icon for this file type so give it the generic file flag.
-							fileFolderTypeList.add(FILE);
-							fileFolderSizeList.add("" + getFormattedFileSize(file.length()));
-							
-						}
+                        fileFolderNameList.add(file.getName());
+                        File[] listOfFiles = file.listFiles();
 
-					}
-					
-				} 
-			
-			}
-		}
-		FoldersListViewAdapter foldersListViewAdapter = new FoldersListViewAdapter(getActivity(),
-                                                                                   this,
-																				   fileFolderNameList,
-																				   fileFolderTypeList, 
-																				   fileFolderSizeList,
-																				   fileFolderPathList);
-		
-		listView.setAdapter(foldersListViewAdapter);
-		foldersListViewAdapter.notifyDataSetChanged();
+                        if (listOfFiles!=null) {
+                            fileFolderTypeList.add(FOLDER);
+                            if (listOfFiles.length==1) {
+                                fileFolderSizeList.add("" + listOfFiles.length + " item");
+                            } else {
+                                fileFolderSizeList.add("" + listOfFiles.length + " items");
+                            }
 
+                        } else {
+                            fileFolderTypeList.add(FOLDER);
+                            fileFolderSizeList.add("Unknown items");
+                        }
+
+                    } else {
+
+                        try {
+                            String path = file.getCanonicalPath();
+                            fileFolderPathList.add(path);
+                        } catch (IOException e) {
+                            continue;
+                        }
+
+                        fileFolderNameList.add(file.getName());
+                        String fileName = "";
+                        try {
+                            fileName = file.getCanonicalPath();
+                        } catch (IOException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+
+                        //Add the file element to fileFolderTypeList based on the file type.
+                        if (getFileExtension(fileName).equalsIgnoreCase("mp3") ||
+                                getFileExtension(fileName).equalsIgnoreCase("3gp") ||
+                                getFileExtension(fileName).equalsIgnoreCase("mp4") ||
+                                getFileExtension(fileName).equalsIgnoreCase("m4a") ||
+                                getFileExtension(fileName).equalsIgnoreCase("aac") ||
+                                getFileExtension(fileName).equalsIgnoreCase("ts") ||
+                                getFileExtension(fileName).equalsIgnoreCase("flac") ||
+                                getFileExtension(fileName).equalsIgnoreCase("mid") ||
+                                getFileExtension(fileName).equalsIgnoreCase("xmf") ||
+                                getFileExtension(fileName).equalsIgnoreCase("mxmf") ||
+                                getFileExtension(fileName).equalsIgnoreCase("midi") ||
+                                getFileExtension(fileName).equalsIgnoreCase("rtttl") ||
+                                getFileExtension(fileName).equalsIgnoreCase("rtx") ||
+                                getFileExtension(fileName).equalsIgnoreCase("ota") ||
+                                getFileExtension(fileName).equalsIgnoreCase("imy") ||
+                                getFileExtension(fileName).equalsIgnoreCase("ogg") ||
+                                getFileExtension(fileName).equalsIgnoreCase("mkv") ||
+                                getFileExtension(fileName).equalsIgnoreCase("wav")) {
+
+                            //The file is an audio file.
+                            fileFolderTypeList.add(AUDIO_FILE);
+                            fileFolderSizeList.add("" + getFormattedFileSize(file.length()));
+
+                        } else if (getFileExtension(fileName).equalsIgnoreCase("jpg") ||
+                                getFileExtension(fileName).equalsIgnoreCase("gif") ||
+                                getFileExtension(fileName).equalsIgnoreCase("png") ||
+                                getFileExtension(fileName).equalsIgnoreCase("bmp") ||
+                                getFileExtension(fileName).equalsIgnoreCase("webp")) {
+
+                            //The file is a picture file.
+                            fileFolderTypeList.add(PICTURE_FILE);
+                            fileFolderSizeList.add("" + getFormattedFileSize(file.length()));
+
+                        } else if (getFileExtension(fileName).equalsIgnoreCase("3gp") ||
+                                getFileExtension(fileName).equalsIgnoreCase("mp4") ||
+                                getFileExtension(fileName).equalsIgnoreCase("3gp") ||
+                                getFileExtension(fileName).equalsIgnoreCase("ts") ||
+                                getFileExtension(fileName).equalsIgnoreCase("webm") ||
+                                getFileExtension(fileName).equalsIgnoreCase("mkv")) {
+
+                            //The file is a video file.
+                            fileFolderTypeList.add(VIDEO_FILE);
+                            fileFolderSizeList.add("" + getFormattedFileSize(file.length()));
+
+                        } else {
+
+                            //We don't have an icon for this file type so give it the generic file flag.
+                            fileFolderTypeList.add(FILE);
+                            fileFolderSizeList.add("" + getFormattedFileSize(file.length()));
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        FoldersListViewAdapter foldersListViewAdapter = new FoldersListViewAdapter(getActivity(),
+                this,
+                fileFolderNameList,
+                fileFolderTypeList,
+                fileFolderSizeList,
+                fileFolderPathList);
+
+        listView.setAdapter(foldersListViewAdapter);
+        foldersListViewAdapter.notifyDataSetChanged();
 
         //Restore the ListView's previous state.
         if (restoreState!=null) {
@@ -561,7 +561,7 @@ public class FilesFoldersFragment extends Fragment {
 
         Intent intent=new Intent(getActivity(), PlayBackActivity.class);
         intent.putExtra("position",index);
-        intent.putExtra("type",4);
+        intent.putExtra("type",5);
         intent.putExtra("playlistid", folderPath);
         startActivity(intent);
     }
@@ -676,7 +676,6 @@ public class FilesFoldersFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        Log.v("tag","tagggg");
         commonUtility.setCurrentFragmentId(1);
 
     }

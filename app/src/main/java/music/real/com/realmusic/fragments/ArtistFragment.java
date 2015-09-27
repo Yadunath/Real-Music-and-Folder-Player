@@ -47,7 +47,7 @@ public class ArtistFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mCursor=getActivity().managedQuery(MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,null,null,null,null);
-        ArtistListCursorAdapter listCursorAdapter=new ArtistListCursorAdapter(getActivity(),mCursor,0);
+        ArtistListCursorAdapter listCursorAdapter=new ArtistListCursorAdapter(getActivity(),mCursor,1);
         mRecyclerView.setAdapter(listCursorAdapter);
 
     }

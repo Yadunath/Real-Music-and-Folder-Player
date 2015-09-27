@@ -8,13 +8,15 @@ import android.util.Log;
 
 public class MyListItem {
   private String name;
+    private int noofsongs;
     private Uri uriArtWork;
     private String artistName;
     private String albumId;
     private String artistId;
     private String genreId;
-    private static final int TYPE_ARTIST=0;
-    private static final int TYPE_GENRE=1;
+    private static final int TYPE_ARTIST=1;
+    private static final int TYPE_GENRE=2;
+    private static final int TYPE_PLAYLIST=3;
   public void setName(String name) {
     this.name = name;
   }
@@ -23,6 +25,15 @@ public class MyListItem {
     return name;
 
   }
+    public void setNoofSongs(int num)
+    {
+        this.noofsongs=num;
+
+    }
+    public int getNoofsongs()
+    {
+        return noofsongs;
+    }
     public void setUri( int albumId)
     {
         Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
@@ -55,6 +66,7 @@ public class MyListItem {
         myListItem.setName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM)));
         myListItem.setUri(cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Albums._ID)));
         myListItem.setAlbumId(cursor.getString(cursor.getColumnIndex(MediaStore.Video.Media._ID)));
+        myListItem.setNoofSongs(cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Albums.NUMBER_OF_SONGS)));
         return myListItem;
   }
     public static MyListItem forList(Cursor cursor)
@@ -82,6 +94,12 @@ public class MyListItem {
                 myListItem.setArtistName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Genres.NAME)));
                 myListItem.setAlbumId(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Genres._ID)));
                 break;
+            case TYPE_PLAYLIST:
+                myListItem.setName("1");
+                myListItem.setArtistName(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Playlists.NAME)));
+                myListItem.setAlbumId(cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Playlists._ID)));
+                break;
+
         }
         return myListItem;
 

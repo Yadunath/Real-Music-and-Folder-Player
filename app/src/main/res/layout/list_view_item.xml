@@ -90,7 +90,7 @@
         android:padding="8dp"
         android:layout_centerVertical="true"
         android:background="?android:selectableItemBackground"
-        android:src="@mipmap/ic_launcher"
+        android:src="@drawable/ic_action_overflow"
         android:scaleX="0.75"
         android:scaleY="0.75"/>
 

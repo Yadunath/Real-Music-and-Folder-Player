@@ -35,7 +35,7 @@ public class GridCursorAdapter extends CursorRecyclerViewAdapter<GridCursorAdapt
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView mTextView;
+        public TextView mTextView,mSubTextView;
         public ImageView mImageView;
         public int mWidth;
         public int mHeight;
@@ -49,10 +49,11 @@ public class GridCursorAdapter extends CursorRecyclerViewAdapter<GridCursorAdapt
             mWidth = ((metrics.widthPixels)/2)-10;
             mHeight = mWidth ;
             mTextView=(TextView)view.findViewById(R.id.gridViewTitleText);
+            mSubTextView=(TextView)view.findViewById(R.id.gridViewSubText);
             mImageView=(ImageView)view.findViewById(R.id.imageView);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) mImageView.getLayoutParams();
             params.width=mWidth;
-            params.height=mWidth + (mWidth/3);
+            params.height=mWidth;
             mImageView.setLayoutParams(params);
             this.mView=view;
         }
@@ -70,6 +71,16 @@ public class GridCursorAdapter extends CursorRecyclerViewAdapter<GridCursorAdapt
     public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
         MyListItem myListItem = MyListItem.fromCursor(cursor);
         viewHolder.mTextView.setText(myListItem.getName());
+        if (myListItem.getNoofsongs()==1)
+        {
+            viewHolder.mSubTextView.setText(""+myListItem.getNoofsongs()+" Track");
+
+        }
+        else
+        {
+            viewHolder.mSubTextView.setText(""+myListItem.getNoofsongs()+" Tracks");
+
+        }
         viewHolder.albumId=myListItem.getAlbumId();
         Picasso.with(context).load(myListItem.getUri()).into(viewHolder.mImageView);
         viewHolder.imageUri=myListItem.getUri();
@@ -92,7 +103,7 @@ public class GridCursorAdapter extends CursorRecyclerViewAdapter<GridCursorAdapt
     {
         MainActivity mainActivity=(MainActivity)context;
         Log.v("Grdcursor",""+imageUri);
-        mainActivity.albumClick(1,imageUri,position);
+        mainActivity.albumClick(0,imageUri,position);
 
     }
 

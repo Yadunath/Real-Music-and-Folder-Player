@@ -25,13 +25,12 @@ public class LauncherApplication extends Application {
     private int type,trackPosition;
     private String playlistType;
     private boolean launchedOnce;
+    int repeatState,shuffleState;
     @Override
     public void onCreate() {
         super.onCreate();
 
         commonUtility=new CommonUtility();
-        commonUtility.setRepeatState(0);
-        commonUtility.setShuffleState(0);
         this.bindService(new Intent(this, MusicPlaybackService.class), serviceConnection, Context.BIND_AUTO_CREATE);
         sharedPreferences=getSharedPreferences("SONGINFO", MODE_PRIVATE);
 
@@ -39,8 +38,9 @@ public class LauncherApplication extends Application {
         playlistType=sharedPreferences.getString("playlistId", "null");
         trackPosition=sharedPreferences.getInt("trackposition", 0);
         launchedOnce=sharedPreferences.getBoolean("launchTime", false);
-
-        Log.v("Launcherappctn",""+type+"trackpo"+trackPosition+" platype "+playlistType);
+        repeatState=sharedPreferences.getInt("repeatstate", 0);
+        shuffleState=sharedPreferences.getInt("shufflestate",0);
+        setRepeatandShuffleState();
         Handler handler=new Handler();
       /*  if (launchedOnce)
         {
@@ -59,6 +59,11 @@ public class LauncherApplication extends Application {
         }
 */
 
+    }
+    public void setRepeatandShuffleState()
+    {
+        commonUtility.setRepeatState(repeatState);
+        commonUtility.setShuffleState(shuffleState);
     }
     private ServiceConnection serviceConnection=new ServiceConnection() {
         @Override

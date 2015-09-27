@@ -2,6 +2,9 @@ package music.real.com.realmusic.activities;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.os.Bundle;
@@ -15,6 +18,7 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
 import music.real.com.realmusic.R;
 import music.real.com.realmusic.adapter.TrackListCursorAdapter;
@@ -28,10 +32,10 @@ public class AlbumItesmActivity extends AppCompatActivity {
     private LinearLayoutManager mLayoutManager;
     Cursor cursor;
     private CommonUtility commonUtility;
-    private static final int TYPE_ALBUM=1;
-    private static final int TYPE_ARTIST=2;
-    private static final int TYPE_GENRE=3;
-
+    private static final int TYPE_ALBUM=0;
+    private static final int TYPE_ARTIST=1;
+    private static final int TYPE_GENRE=2;
+    private static final int TYPE_PLAYLIST=3;
     private int type;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +49,7 @@ public class AlbumItesmActivity extends AppCompatActivity {
         type=intent.getIntExtra("TYPE",1);
         Uri myUri = Uri.parse(uri);
         Picasso.with(getApplicationContext()).load(myUri).into(imageViewTop);
-
+//        setAlbumArt(myUri);
       /*        Recycler view adapter --adding songs from albums  to listview*/
 
 
@@ -80,6 +84,13 @@ public class AlbumItesmActivity extends AppCompatActivity {
                 Log.v("TYPE",""+cursor.getCount());
                 listCursorAdapter=new TrackListCursorAdapter(AlbumItesmActivity.this,cursor,2,mediaid);
                 break;
+            case TYPE_PLAYLIST:
+                where=MediaStore.Audio.Media._ID + "=?";
+                long id=Long.parseLong(mediaid);
+                Uri contentUri=MediaStore.Audio.Playlists.Members.getContentUri("external", id);
+                cursor=managedQuery(contentUri, null, null,null ,order);
+                listCursorAdapter=new TrackListCursorAdapter(AlbumItesmActivity.this,cursor,type+1,mediaid);
+                break;
         }
 
         recyclerList.setAdapter(listCursorAdapter);
@@ -95,6 +106,31 @@ public class AlbumItesmActivity extends AppCompatActivity {
         Log.v(Tag,playlistid);
         startActivity(playBackIntent);
     }
+
+           /*                      Update AlbumArt                     */
+
+    public void setAlbumArt(Uri albumArt)
+    {
+        Picasso.with(getApplicationContext()).load(albumArt).into(new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+
+                imageViewTop.setBackground(new BitmapDrawable(getApplicationContext().getResources(), bitmap));
+
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        });
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -105,6 +141,7 @@ public class AlbumItesmActivity extends AppCompatActivity {
             fragmentManager.beginTransaction().replace(R.id.bottombar,fragment).commit();
         }
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

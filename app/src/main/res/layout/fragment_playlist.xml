@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingLeft="5dp">
+
+    <TextView
+        android:id="@+id/recetextView1"
+        android:layout_width="wrap_content"
+        android:layout_height="28dp"
+        android:layout_marginTop="5dp"
+        android:text="Recently added"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:textColor="#ff33b5e5"
+        android:clickable="true"
+        android:selectAllOnFocus="true"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
+    <ListView
+        android:id="@+id/pllistView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:headerDividersEnabled="true"
+        android:layout_marginBottom="10dp"
+        >
+    </ListView>
+
+</LinearLayout>

@@ -23,6 +23,7 @@ public class ArtistListCursorAdapter extends CursorRecyclerViewAdapter<ArtistLis
     Cursor cursor;
     private Context context;
     int type;
+
     public ArtistListCursorAdapter(Context context, Cursor cursor,int type) {
         super(context, cursor);
         cursor = cursor;
@@ -67,7 +68,10 @@ public class ArtistListCursorAdapter extends CursorRecyclerViewAdapter<ArtistLis
         viewHolder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                switchFragment(viewHolder.artistId);
+
+                        switchFragment(viewHolder.artistId);
+
+
 
             }
         });
@@ -78,7 +82,8 @@ public class ArtistListCursorAdapter extends CursorRecyclerViewAdapter<ArtistLis
 
         Uri uri=Uri.parse("content://media/external/audio/albumart/3");
         MainActivity mainActivity=(MainActivity)context;
-        mainActivity.albumClick(2,uri, artistId);
+        mainActivity.albumClick(type,uri, artistId);
+        Log.v("artistclick",""+type);
 
     }
 }

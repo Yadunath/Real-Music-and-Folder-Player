@@ -31,6 +31,8 @@ import music.real.com.realmusic.fragments.AlbumsFragment;
 import music.real.com.realmusic.fragments.ArtistFragment;
 import music.real.com.realmusic.fragments.ControlFragment;
 import music.real.com.realmusic.fragments.GenreFragment;
+import music.real.com.realmusic.fragments.PlaylistFragment;
+import music.real.com.realmusic.fragments.TabFragment;
 import music.real.com.realmusic.fragments.TracksFragment;
 import music.real.com.realmusic.fragments_folder.FilesFoldersFragment;
 import music.real.com.realmusic.utilities.CommonUtility;
@@ -92,6 +94,23 @@ public class MainActivity extends AppCompatActivity {
                     public boolean onNavigationItemSelected(MenuItem menuItem) {
                         menuItem.setChecked(true);
                         mDrawerLayout.closeDrawers();
+                        Fragment fragment=null;
+                        Class fragmentClass=null;
+                        switch (menuItem.getItemId())
+                        {
+                            case R.id.nav_my_music:
+                                fragmentClass=TabFragment.class;
+                                break;
+                            case R.id.nav_playlists:
+                                fragmentClass= PlaylistFragment.class;
+                        }
+                        try {
+                            fragment = (Fragment) fragmentClass.newInstance();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        FragmentManager fragmentManager=getSupportFragmentManager();
+                        fragmentManager.beginTransaction().replace(R.id.parentLayout,fragment).commit();
                         return true;
                     }
                 });
@@ -166,10 +185,15 @@ public class MainActivity extends AppCompatActivity {
         if (commonUtility.getControllerStatus())
         {
             Handler handler=new Handler();
-
+          /*  handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {*/
                     ControlFragment fragment = new ControlFragment();
                     android.app.FragmentManager fragmentManager = getFragmentManager();
                     fragmentManager.beginTransaction().replace(R.id.bottombar, fragment).commit();
+/*
+                }
+            }, 1000);*/
 
 
         }

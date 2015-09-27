@@ -58,10 +58,14 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 	private Utilities utils=new Utilities();
 	private static Cursor mCursor;
 	private static int  trackPosition;
+
 	private final int TYPE_TRACKS=0;
 	private final int TYPE_ALBUMS=1;
 	private final int TYPE_ARTIST=2;
-	private final int TYPE_FOLDERS=4;
+	private final int TYPE_GENRE=3;
+	private final int TYPE_PLAYLIST=4;
+	private final int TYPE_FOLDERS=5;
+
 	private  CommonUtility commonUtility;
 	private ComponentName remoteComponentName;
 	private RemoteControlClient remoteControlClient;
@@ -76,6 +80,8 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 
 	private SharedPreferences sharedPreferences;
 	SharedPreferences.Editor editor;
+
+	RemoteViews notificationViews;
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
@@ -150,6 +156,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 	public void getCursor( int type,String playlistId)
 	{
 		String order= MediaStore.Audio.Media.TITLE;
+		Log.v("playlisttype",""+type);
 		switch (type)
 		{
 
@@ -165,7 +172,14 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 				String whereArtist= MediaStore.Audio.Media.ARTIST_ID + "=?";
 				String wherValArtist[]={playlistId};
 				Log.v("service",""+playlistId);
-				mCursor=getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,whereArtist,wherValArtist,null);
+				mCursor=getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,whereArtist,wherValArtist,order);
+				break;
+			case TYPE_PLAYLIST:
+
+				Log.v("service",""+playlistId);
+				long id=Long.parseLong(playlistId);
+				Uri contentUri=MediaStore.Audio.Playlists.Members.getContentUri("external", id);
+				mCursor=getContentResolver().query(contentUri, null, null,null ,order);
 				break;
 			case TYPE_FOLDERS:
 
@@ -214,9 +228,9 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 			if (musicPlayer.isPlaying()) {
 				musicPlayer.pause();
 				PlayBackActivity.playButton.setBackgroundResource(R.drawable.new_play);
-				commonUtility.setPlayerStatus(false);
-			remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
 
+				commonUtility.setPlayerStatus(false);
+				remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
 			} else {
 				musicPlayer.start();
 				PlayBackActivity.playButton.setBackgroundResource(R.drawable.new_pause);
@@ -338,22 +352,12 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 
 	public void  setNotificationLayout()
 	{
-	/*	Notification notification = new NotificationCompat.Builder(getApplicationContext())
-				.setSmallIcon(R.drawable.ic_launcher)
-				.setContentTitle("title").build();
-		RemoteViews notificationViews=new RemoteViews(getApplicationContext().getPackageName(),R.layout.custom_notification);
-		notification.contentView=notificationViews;
-		notification.flags |=  Notification.FLAG_AUTO_CANCEL | Notification.FLAG_SHOW_LIGHTS;
-		startForeground(12,notification);
-		*/
-
 		notificationManager=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 		Notification notification=new Notification(R.drawable.ic_launcher,null,System.currentTimeMillis());
-		RemoteViews notificationViews=new RemoteViews(getPackageName(),R.layout.custom_notification);
-
+		 notificationViews=new RemoteViews(getPackageName(),R.layout.custom_notification);
 		Notification status = new Notification();
 		status.contentView = notificationViews;
-		notificationViews.setImageViewBitmap(R.id.imageViewAlbumArt,getAlbumArtBitmap());
+		notificationViews.setImageViewBitmap(R.id.imageViewAlbumArt, getAlbumArtBitmap());
 		notificationViews.setTextViewText(R.id.textSongName, commonUtility.getSongTitle());
 		notificationViews.setTextViewText(R.id.textAlbumName, commonUtility.getAlbum());
 		status.flags |= Notification.FLAG_AUTO_CANCEL | Notification.FLAG_SHOW_LIGHTS;
@@ -384,6 +388,11 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 		PendingIntent pPlay = PendingIntent.getBroadcast(getApplicationContext(), 0, play, PendingIntent.FLAG_UPDATE_CURRENT);
 		view.setOnClickPendingIntent(R.id.btnPlay, pPlay);
 
+	}
+
+	public  void cancelNotification()
+	{
+		stopForeground(true);
 	}
 
 				/*			LockScreen playback ui registering  		*/
@@ -424,11 +433,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 	}
 
 
-	public  void cancelNotification()
-	{
-		notificationManager.cancel(1458);
 
-	}
 
 
 	public void updateprogressbar() {
@@ -546,6 +551,11 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 		@Override
 		public void savedDatas(int type, int position, String playlistId) throws RemoteException {
 			playbackStubWeakReference.get().restoreCursor(type,position,playlistId);
+		}
+
+		@Override
+		public void cancelNotification() throws RemoteException {
+			playbackStubWeakReference.get().cancelNotification();
 		}
 	}
 	private final IBinder playbackBinder=new PlaybackStub(this);

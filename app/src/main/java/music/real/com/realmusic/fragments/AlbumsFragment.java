@@ -2,6 +2,7 @@ package music.real.com.realmusic.fragments;
 
 
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
@@ -38,7 +39,9 @@ public class AlbumsFragment extends Fragment {
       gridView=(RecyclerView)view.findViewById(R.id.gridView);
         gridView.setHasFixedSize(true);
         mLayoutManager = new GridLayoutManager(getActivity(),2);
+
         gridView.setLayoutManager(mLayoutManager);
+        gridView.addItemDecoration(new SpacesItemDecoration(10));
     }
 
     @Override
@@ -51,5 +54,27 @@ public class AlbumsFragment extends Fragment {
 //        gridView.setAdapter(albumAdapter);
         GridCursorAdapter adapter=new GridCursorAdapter(getActivity(),cursor);
         gridView.setAdapter(adapter);
+    }
+
+
+    /*              Space divider between recyclerview grid items       */
+    public class SpacesItemDecoration extends RecyclerView.ItemDecoration {
+        private int space;
+
+        public SpacesItemDecoration(int space) {
+            this.space = space;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View view,
+                                   RecyclerView parent, RecyclerView.State state) {
+            outRect.left = space;
+            outRect.right = space;
+            outRect.bottom = space;
+
+            // Add top margin only for the first item to avoid double space between items
+            if(parent.getChildLayoutPosition(view) == 0)
+                outRect.top = space;
+        }
     }
 }

@@ -25,10 +25,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import music.real.com.realmusic.MainActivity;
 import music.real.com.realmusic.PlayBackUtility;
 import music.real.com.realmusic.R;
 import music.real.com.realmusic.services.MusicPlaybackService;
@@ -46,13 +48,14 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         private SeekBar seekBar;
         private TextView songTitle,songAlbum,songArtist,currentDurationText,totalDurationText;
         private ImageView albumArtImage;
-        ImageView closeButton;
+        private  ImageButton closeButton,menuButton,lyricButton;
 //        private ViewPager viewPager;
         private CommonUtility commonUtility;
         private HeadsetPlugReceiver myReceiver;
         private UiUpdater uiUpdater;
         int noofsongsplayed=0;
         private SharedPreferences sharedPreferences;
+        SharedPreferences.Editor editor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,11 +70,12 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         songArtist=(TextView)findViewById(R.id.textView2);
         albumArtImage=(ImageView)findViewById(R.id.imageView6);
         shuffleButton=(ImageButton)findViewById(R.id.imageButton5);
-        closeButton=(ImageView)findViewById(R.id.imageView7);
         repeatButton=(ImageButton)findViewById(R.id.imageButton4);
+        closeButton=(ImageButton)findViewById(R.id.imageButton7);
+        menuButton=(ImageButton)findViewById(R.id.imageButton6);
+        lyricButton=(ImageButton)findViewById(R.id.imageButton8);
         currentDurationText=(TextView)findViewById(R.id.textView3);
         totalDurationText=(TextView)findViewById(R.id.textView4);
-
 //        viewPager=(ViewPager)findViewById(R.id.imageView6);
 
         playButton.setOnClickListener(this);
@@ -80,16 +84,22 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         seekBar.setOnSeekBarChangeListener(this);
         shuffleButton.setOnClickListener(this);
         repeatButton.setOnClickListener(this);
-//        closeButton.setOnClickListener(this);
+        closeButton.setOnClickListener(this);
+        menuButton.setOnClickListener(this);
+        lyricButton.setOnClickListener(this);
+
         Intent getIntent=getIntent();
         position=getIntent.getIntExtra("position", 0);
         type=getIntent.getIntExtra("type", 0);
+
+        Log.v("type",""+type);
         playlistId=getIntent.getStringExtra("playlistid");
         commonUtility=new CommonUtility();
 
         Handler handler=new Handler();
         myReceiver = new HeadsetPlugReceiver();
-
+        sharedPreferences=getSharedPreferences("SONGINFO",MODE_PRIVATE);
+        editor=sharedPreferences.edit();
 
 //        CustomPagerAdapter customPagerAdapter=new CustomPagerAdapter(getApplicationContext());
 //        viewPager.setAdapter(customPagerAdapter);
@@ -109,6 +119,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
                 @Override
                 public void run() {
                     try {
+
                         mInterface.playSong(type,position,playlistId);
                         playButton.setBackgroundResource(R.drawable.new_pause);
                         commonUtility.setControlerStatus(true);
@@ -117,8 +128,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
                         e.printStackTrace();
                     }
                 }
-            },300);
-
+            },800);
 
         }
 
@@ -127,14 +137,12 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         uiUpdater=new UiUpdater();
 
         updateUI();
-//        setButtonOnResume();
 
     }
 
     public void setSharedPreferences()
     {
-        sharedPreferences=getSharedPreferences("SONGINFO",MODE_PRIVATE);
-        SharedPreferences.Editor editor=sharedPreferences.edit();
+
         editor.putBoolean("launchTime",true);
         editor.commit();
     }
@@ -169,9 +177,18 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
             case R.id.imageButton4:
                     setRepeat();
                 break;
-            case R.id.imageView5:
-
+            case R.id.imageButton6:
+                Intent intent=new Intent(this, MainActivity.class);
+//                startActivity(intent);
                 break;
+            case R.id.imageButton8:
+                Toast.makeText(getApplicationContext(),"Lyrics option will be available soon",Toast.LENGTH_SHORT).show();
+                break;
+            case R.id.imageButton7:
+                    finish();
+                break;
+
+
         }
     }
     public void setShuffle()
@@ -180,11 +197,15 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         {
             commonUtility.setShuffleState(1);
             shuffleButton.setBackgroundResource(R.drawable.new_shuffle_on);
+            setSharedPreferencesShuffle(1);
+
         }
         else
         {
             commonUtility.setShuffleState(0);
             shuffleButton.setBackgroundResource(R.drawable.new_shuffle);
+            setSharedPreferencesShuffle(0);
+
         }
     }
 
@@ -195,15 +216,18 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
             case 0:
                 commonUtility.setRepeatState(1);
                 repeatButton.setBackgroundResource(R.drawable.new_repeat_one);
+                setSharedPreferencesRepeat(1);
                 break;
             case 1:
                 commonUtility.setRepeatState(2);
                 repeatButton.setBackgroundResource(R.drawable.new_repeat_all);
+                setSharedPreferencesRepeat(2);
 
                 break;
             case 2:
                 commonUtility.setRepeatState(0);
                 repeatButton.setBackgroundResource(R.drawable.new_repeat);
+                setSharedPreferencesRepeat(0);
                 break;
             default:
                 commonUtility.setRepeatState(0);
@@ -274,6 +298,19 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
             }
         });
     }
+    /*              In order to save the shuffle and repeat state even if app force closes or service closed this state will
+     * be fetched in every restart of app and set this in commonutility class */
+    public void setSharedPreferencesShuffle(int state)
+    {
+        editor.putInt("shufflestate",state);
+        editor.commit();
+    }
+    public void setSharedPreferencesRepeat(int state)
+    {
+        editor.putInt("repeatstate", state);
+        editor.commit();
+
+    }
     @Override
     protected void onResume() {
         super.onResume();
@@ -297,7 +334,11 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        releaseService();
+        if (commonUtility.getPlayerStatus()==false)
+        {
+            releaseService();
+
+        }
     }
 
 

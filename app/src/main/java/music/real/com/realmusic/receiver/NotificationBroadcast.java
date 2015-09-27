@@ -55,7 +55,7 @@ public class NotificationBroadcast extends BroadcastReceiver {
 			} else if (intent.getAction().equals(MusicPlaybackService.NOTIFY_NEXT)) {
 				next();
 			} else if (intent.getAction().equals(MusicPlaybackService.NOTIFY_DELETE)) {
-
+				cancelNotification();
 
 			}else if (intent.getAction().equals(MusicPlaybackService.NOTIFY_PREVIOUS)) {
 				previous();
@@ -87,6 +87,16 @@ public class NotificationBroadcast extends BroadcastReceiver {
 	{
 		try {
 			PlayBackActivity.mInterface.nextSong();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+
+	}
+	public void cancelNotification()
+	{
+
+		try {
+			PlayBackActivity.mInterface.cancelNotification();
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
