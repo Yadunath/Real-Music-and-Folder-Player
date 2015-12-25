@@ -2,13 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:id="@+id/notificationLayout"
+    android:background="@color/notification_bg"
+  >
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:gravity="center"
-        android:orientation="horizontal" >
+        android:orientation="horizontal"
+       >
 
         <ImageView
             android:id="@+id/imageViewAlbumArt"
@@ -17,7 +21,7 @@
             android:src="@drawable/ic_launcher" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="@dimen/notification_text_width"
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:gravity="center"
@@ -28,7 +32,7 @@
 
             <TextView
                 android:id="@+id/textSongName"
-                android:layout_width="90dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:selectAllOnFocus="true"
@@ -38,7 +42,7 @@
 
             <TextView
                 android:id="@+id/textAlbumName"
-                android:layout_width="90dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="marquee"
                 android:gravity="center_vertical"
@@ -49,7 +53,7 @@
                 android:textSize="9sp" />
         </LinearLayout>
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1.5"
@@ -60,15 +64,17 @@
                 android:id="@+id/btnPrevious"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:layout_margin="5dp"
-                android:background="@drawable/ic_action_previous" />
+                android:layout_marginTop="5dp"
+                android:background="@drawable/ic_action_previous"
+                android:layout_toLeftOf="@+id/btnPause"/>
 
             <Button
                 android:id="@+id/btnPause"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_margin="5dp"
-                android:background="@drawable/ic_action_pause" />
+                android:background="@drawable/ic_action_pause"
+                android:layout_toLeftOf="@+id/btnNext"/>
 
             <Button
                 android:id="@+id/btnPlay"
@@ -83,14 +89,19 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_margin="5dp"
-                android:background="@drawable/ic_action_next" />
+                android:background="@drawable/ic_action_next"
+                android:layout_toLeftOf="@+id/btnDelete"/>
             <Button
                 android:id="@+id/btnDelete"
                 android:layout_width="28dp"
                 android:layout_height="28dp"
                 android:layout_marginLeft="5dp"
-                android:background="@drawable/ic_action_remove" />
-        </LinearLayout>
+                android:layout_marginTop="5dp"
+                android:background="@drawable/ic_action_remove"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="5dp"
+                />
+        </RelativeLayout>
 
 
     </RelativeLayout>

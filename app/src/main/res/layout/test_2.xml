@@ -125,7 +125,8 @@
             android:id="@+id/imageButton6"
             android:background="@drawable/white_menu_1"
             android:layout_toRightOf="@+id/relativeLayout1"
-            android:layout_alignBottom="@+id/imageButton4"/>
+            android:layout_alignBottom="@+id/imageButton4"
+            />
     </RelativeLayout>
 
     <RelativeLayout

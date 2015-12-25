@@ -8,19 +8,24 @@
     >
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="84dp"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/parentLayout"
+            android:layout_above="@+id/bottombar"
+            >
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:id="@+id/bottombar"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
+            />
+    </RelativeLayout>
 
-        >
-    <include layout="@layout/include_list_viewpager"
-        />
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="84dp"
-        android:id="@+id/bottombar"
-        android:layout_alignParentBottom="true"
-       />
 
-</RelativeLayout>
     <android.support.design.widget.NavigationView
         android:id="@+id/nav_view"
         android:layout_height="match_parent"

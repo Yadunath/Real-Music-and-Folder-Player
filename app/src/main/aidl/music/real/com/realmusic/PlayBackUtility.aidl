@@ -6,7 +6,7 @@ package music.real.com.realmusic;
 interface PlayBackUtility {
 
     void playSong(int type,int position,String playlistId);
-    void pauseSong();
+    void pauseSong(int pauseType);
     void nextSong();
     void previousSong();
     void seekSong(int progress);
