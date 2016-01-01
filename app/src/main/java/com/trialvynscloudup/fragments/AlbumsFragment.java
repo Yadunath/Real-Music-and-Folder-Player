@@ -43,7 +43,6 @@ public class AlbumsFragment extends Fragment {
       gridView=(RecyclerView)view.findViewById(R.id.gridView);
         gridView.setHasFixedSize(true);
         mLayoutManager = new GridLayoutManager(getActivity(),2);
-
         gridView.setLayoutManager(mLayoutManager);
         gridView.addItemDecoration(new SpacesItemDecoration(10));
     }

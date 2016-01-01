@@ -6,4 +6,6 @@
     <dimen name="grid_horizontal_spacing">15dp</dimen>
     <dimen name="text_size_track_name">19sp</dimen>
     <dimen name="notification_text_width">90dp</dimen>
+    <dimen name="numpad_text_size">48dp</dimen>
+
 </resources>

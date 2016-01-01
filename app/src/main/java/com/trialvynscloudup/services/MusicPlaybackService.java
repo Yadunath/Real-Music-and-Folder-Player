@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
@@ -90,7 +92,11 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 	private final int SHUFFLE_ON=1;
 	PendingIntent pendingIntent;
 
+
 	private boolean restoreState=false;
+
+	List<Integer> randomNumberList;
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
@@ -134,6 +140,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 		}
 		sharedPreferences=getSharedPreferences("SONGINFO",MODE_PRIVATE);
 		editor=sharedPreferences.edit();
+		randomNumberList = new ArrayList<Integer>();
 	}
 
 	@Override
@@ -170,6 +177,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 
 	public void getCursor( int type,String playlistId)
 	{
+		randomNumberList.clear();
 		String order= MediaStore.Audio.Media.TITLE;
 		switch (type)
 		{
@@ -187,12 +195,18 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 				String wherValArtist[]={playlistId};
 				mCursor=getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,whereArtist,wherValArtist,order);
 				break;
+			case TYPE_GENRE:
+				Uri genreUri=MediaStore.Audio.Genres.Members.getContentUri("external", Long.parseLong(playlistId));
+				mCursor=getContentResolver().query(genreUri, null, null,null ,order);
+
+				break;
 			case TYPE_PLAYLIST:
 
 				long id=Long.parseLong(playlistId);
 				Uri contentUri=MediaStore.Audio.Playlists.Members.getContentUri("external", id);
 				mCursor=getContentResolver().query(contentUri, null, null,null ,order);
 				break;
+
 			case TYPE_FOLDERS:
 
 /*				String wherFolder=MediaStore.Audio.Media.DATA + " like ? "+" and "+MediaStore.Audio.Media.DATA + " not like ?";
@@ -256,7 +270,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 			int albumId = mCursor.getInt(mCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
 			Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
 			Uri uriArtWork = ContentUris.withAppendedId(sArtworkUri, albumId);
-			UiUpdater.mInfoListener.updateSongInfo(songTitle, albumName, artistName, uriArtWork);
+			UiUpdater.mInfoListener.updateSongInfo(songTitle, albumName, artistName, uriArtWork,dataPath);
 			commonUtility.setSongTitle(songTitle);
 			commonUtility.setAlbumName(albumName);
 			commonUtility.setAlbumArtUri(uriArtWork);
@@ -336,6 +350,11 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 			if (mCursor.getCount()-1==trackPosition)
 			{
 
+				if (commonUtility.getShuffleState()==SHUFFLE_ON)
+				{
+					trackPosition=getRandomNumber();
+					mediaPlayBack(getDatapath());
+				}
 			}
 			else
 			{
@@ -430,11 +449,20 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 	public void  setNotificationLayout()
 	{
 		notificationManager=(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-		Notification notification=new Notification(R.drawable.ic_launcher,null,System.currentTimeMillis());
+//		Notification notification=new Notification(R.drawable.ic_launcher,null,System.currentTimeMillis());
 		notificationViews=new RemoteViews(getPackageName(),R.layout.custom_notification);
 		Notification status = new Notification();
 		status.contentView = notificationViews;
-		notificationViews.setImageViewBitmap(R.id.imageViewAlbumArt, getAlbumArtBitmap());
+		Bitmap bitmap=getAlbumArtBitmap();
+		if (bitmap!=null)
+		{
+			notificationViews.setImageViewBitmap(R.id.imageViewAlbumArt, bitmap);
+		}
+		else
+		{
+
+			notificationViews.setImageViewResource(R.id.imageViewAlbumArt,R.drawable.default_albumart);
+		}
 		notificationViews.setTextViewText(R.id.textSongName, commonUtility.getSongTitle());
 		notificationViews.setTextViewText(R.id.textAlbumName, commonUtility.getAlbum());
 		notificationViews.setOnClickPendingIntent(R.id.notificationLayout,pendingIntent);
@@ -444,6 +472,8 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 		startForeground(1458, status);
 
 	}
+
+
 	public void setListeners(RemoteViews view) {
 		Intent previous = new Intent(NOTIFY_PREVIOUS);
 		Intent delete = new Intent(NOTIFY_DELETE);
@@ -564,10 +594,28 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 		catch (Exception e) {}
 		return bm;
 	}
-	public int getRandomNumber()
-	{
+
+	public int getRandomNumber() {
+
 		Random r = new Random();
-		int number = r.nextInt(mCursor.getCount() - 0) + 0;
+
+		int number = 0;
+
+
+		if (randomNumberList.size()<mCursor.getCount()) {
+			do {
+				number = r.nextInt(mCursor.getCount() - 0) + 0;
+
+			}
+			while (randomNumberList.contains(number));
+		}
+
+		else
+		{
+			randomNumberList.clear();
+		}
+
+		randomNumberList.add(number);
 		return number;
 	}
 		/*						Save playBack info in sharedPreference*/

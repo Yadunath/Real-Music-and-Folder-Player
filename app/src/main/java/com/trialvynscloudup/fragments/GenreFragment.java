@@ -50,6 +50,7 @@ public class GenreFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mCursor=getActivity().managedQuery(MediaStore.Audio.Genres.EXTERNAL_CONTENT_URI,null,null,null,null);
+
         ArtistListCursorAdapter listCursorAdapter=new ArtistListCursorAdapter(getActivity(),mCursor,2);
         mRecyclerView.setAdapter(listCursorAdapter);
 

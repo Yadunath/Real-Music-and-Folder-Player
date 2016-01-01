@@ -37,23 +37,27 @@ import com.trialvynscloudup.dialogues.Custom_2_dialog;
 import com.trialvynscloudup.dialogues.CustomizeDialog;
 import com.trialvynscloudup.recycler.CursorRecyclerViewAdapter;
 import com.trialvynscloudup.recycler.MyListItem;
+import com.trialvynscloudup.utilities.UiUpdater;
 
 /**
  * Created by Yadunath.narayanan on 6/26/2015.
  */
 public class TrackListCursorAdapter extends CursorRecyclerViewAdapter<TrackListCursorAdapter.ViewHolder>{
 
+    private String TAG="TrackListCursorAdapter";
     Cursor cursor;
     public Context context;
     private  int type;
     private String  playlistId;
     private int currentPosition;
+    private int TYPE_PLAYLIST=4;
     public TrackListCursorAdapter(Context context, Cursor cursor,int type,String id) {
         super(context, cursor);
         this.cursor = cursor;
         this.context = context;
         this.type=type;
         this.playlistId=id;
+
     }
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -139,9 +143,6 @@ public class TrackListCursorAdapter extends CursorRecyclerViewAdapter<TrackListC
 
         }
     };
-
-
-
     public void playsong(int position)
     {
         if (type == 0) {
@@ -155,17 +156,26 @@ public class TrackListCursorAdapter extends CursorRecyclerViewAdapter<TrackListC
     public void deleteSong()
     {
 
-        cursor.moveToPosition(currentPosition);
-        String data=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-        String name=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-        context.getContentResolver().delete(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, MediaStore.Audio.Media.DATA + "='"+data+"'", null);
-        File f=new File(name);
-        f.delete();
-        notifyItemRemoved(currentPosition);
-        notifyItemRangeChanged(currentPosition, cursor.getCount());
-
-
+        if (type==TYPE_PLAYLIST)
+        {
+            long id = Long.parseLong(playlistId);
+            String name=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
+            context.getContentResolver().delete(MediaStore.Audio.Playlists.Members.getContentUri("external", id), MediaStore.Audio.Media._ID + "='"+name+"'", null);
+            Log.e(TAG,"playlsi"+id);
+        }
+        else
+        {
+            cursor.moveToPosition(currentPosition);
+            String data = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+            String name = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
+            context.getContentResolver().delete(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, MediaStore.Audio.Media.DATA + "='" + data + "'", null);
+            File f = new File(name);
+            f.delete();
+            notifyItemRemoved(currentPosition);
+            notifyItemRangeChanged(currentPosition, cursor.getCount());
+        }
     }
+
     public void setringTone(){
         cursor.moveToPosition(currentPosition);
         int setid=cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
@@ -180,6 +190,7 @@ public class TrackListCursorAdapter extends CursorRecyclerViewAdapter<TrackListC
             Log.e("ts", "couldn't set ringtone flag for id " + setid);
             return;
         }
+
         String[] cols = new String[] {
                 MediaStore.Audio.Media._ID,
                 MediaStore.Audio.Media.DATA,
@@ -197,15 +208,15 @@ public class TrackListCursorAdapter extends CursorRecyclerViewAdapter<TrackListC
     {
 
       final Cursor  playlistCursor=context.getContentResolver().query(MediaStore.Audio.Playlists.EXTERNAL_CONTENT_URI, new String[]{MediaStore.Audio.Playlists._ID, MediaStore.Audio.Playlists.NAME}, null, null, null);
-        final Custom_2_dialog dd=new Custom_2_dialog(context);
-        dd.show();
+        final Custom_2_dialog playlistDialogue=new Custom_2_dialog(context);
+        playlistDialogue.show();
         String from="CreateNew";
         ArrayList<String> crt=new ArrayList<String>();
         crt.add(from);
         ArrayAdapter<String> sd=new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1,crt);
-        ListView createnew=(ListView)dd.findViewById(R.id.listView2);
+        ListView createnew=(ListView)playlistDialogue.findViewById(R.id.listView2);
         createnew.setAdapter(sd);
-        ListView dialogplst=(ListView)dd.findViewById(R.id.listView1);
+        ListView dialogplst=(ListView)playlistDialogue.findViewById(R.id.listView1);
         String[] from1={MediaStore.Audio.Playlists.NAME};
         int[] to={android.R.id.text1};
         dialogplst.setAdapter(new SimpleCursorAdapter(context, android.R.layout.simple_list_item_1, playlistCursor, from1, to));
@@ -227,7 +238,7 @@ public class TrackListCursorAdapter extends CursorRecyclerViewAdapter<TrackListC
                 cv.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, 1);
                 ContentResolver cr=context.getContentResolver();
                 Uri uri=cr.insert(MediaStore.Audio.Playlists.Members.getContentUri("external", pid), cv);
-                dd.dismiss();
+                playlistDialogue.dismiss();
             }
         });
         createnew.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -235,28 +246,36 @@ public class TrackListCursorAdapter extends CursorRecyclerViewAdapter<TrackListC
 
             public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
                                     long arg3) {
-                dd.dismiss();
-                final CustomizeDialog ff = new CustomizeDialog(context);
-                ff.show();
-                final  EditText et = (EditText) ff.findViewById(R.id.textView2);
+                playlistDialogue.dismiss();
+                final CustomizeDialog newPlaylistDialogue = new CustomizeDialog(context);
+                newPlaylistDialogue.show();
+                final  EditText et = (EditText) newPlaylistDialogue.findViewById(R.id.textView2);
                 et.setText("New Playlist1");
                 String p = et.getText().toString();
-                Button  ok = (Button) ff.findViewById(R.id.button1);
-                Button cancel = (Button) ff.findViewById(R.id.button2);
+                Button  ok = (Button) newPlaylistDialogue.findViewById(R.id.button1);
+                Button cancel = (Button) newPlaylistDialogue.findViewById(R.id.button2);
 
-                String isthr = playlistCursor.getString(playlistCursor.getColumnIndex(MediaStore.Audio.Playlists.NAME));
-                if (isthr.contains(p)) {
-                    ok.setEnabled(false);
+                if (playlistCursor.getCount()>0) {
+                    String isthr = playlistCursor.getString(playlistCursor.getColumnIndex(MediaStore.Audio.Playlists.NAME));
+                    if (isthr.contains(p)) {
+//                        ok.setEnabled(false);
+                    }
                 }
+
                 // OK BUTTON NEW BOX
                 ok.setOnClickListener(new View.OnClickListener() {
 
                     public void onClick(View v) {
-                        ff.dismiss();
-                        playlistCursor.moveToLast();
+                        newPlaylistDialogue.dismiss();
+                        int alc=0;
+                        if (playlistCursor.getCount()>0) {
+                            playlistCursor.moveToLast();
+
+
+                            int albd = playlistCursor.getInt(playlistCursor.getColumnIndex(MediaStore.Audio.Playlists._ID));
+                             alc = albd + 1;
+                        }
                         cursor.moveToPosition(currentPosition);
-                        int albd = playlistCursor.getInt(playlistCursor.getColumnIndex(MediaStore.Audio.Playlists._ID));
-                        int alc = albd + 1;
                         String s1 = et.getText().toString();
                         ContentValues values = new ContentValues(2);
                         values.put(MediaStore.Audio.PlaylistsColumns.NAME, s1);
@@ -268,7 +287,6 @@ public class TrackListCursorAdapter extends CursorRecyclerViewAdapter<TrackListC
                         cv.put(MediaStore.Audio.Playlists.Members.AUDIO_ID, add);
                         cv.put(MediaStore.Audio.Playlists.Members.PLAY_ORDER, 1);
                         ContentResolver cr = context.getContentResolver();
-                        int   paste2 = cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Playlists._ID));
                         Uri uri1 = cr.insert(MediaStore.Audio.Playlists.Members.getContentUri("external", alc), cv);
                     }
                 });
@@ -277,7 +295,7 @@ public class TrackListCursorAdapter extends CursorRecyclerViewAdapter<TrackListC
 
 
                     public void onClick(View v) {
-                        ff.dismiss();
+                        newPlaylistDialogue.dismiss();
                     }
                 });
             }

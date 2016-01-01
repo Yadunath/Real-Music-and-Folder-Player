@@ -57,9 +57,12 @@ public class ArtistListCursorAdapter extends CursorRecyclerViewAdapter<ArtistLis
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
         MyListItem myListItem=MyListItem.artistList(cursor,type);
+
         viewHolder.mArtistName.setText(myListItem.getArtistName());
         viewHolder.mNoofsongs.setText(myListItem.getName()+"  track");
+
         viewHolder.artistId=myListItem.getAlbumId();
+
     }
 
     @Override
@@ -83,7 +86,7 @@ public class ArtistListCursorAdapter extends CursorRecyclerViewAdapter<ArtistLis
         Uri uri=Uri.parse("content://media/external/audio/albumart/3");
         MainActivity mainActivity=(MainActivity)context;
         mainActivity.albumClick(type,uri, artistId);
-        Log.v("artistclick",""+type);
+
 
     }
 }

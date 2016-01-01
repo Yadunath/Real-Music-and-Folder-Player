@@ -122,7 +122,7 @@ public class ControlFragment extends Fragment implements View.OnClickListener {
     {
         uiUpdater.setSongInfoUpdate(new UiUpdater.updateInfo() {
             @Override
-            public void updateSongInfo(String title, String album, String artist, Uri artwork) {
+            public void updateSongInfo(String title, String album, String artist, Uri artwork,String path) {
 
                 songTitle.setText(title);
                 songAlbum.setText(album + " | " + artist);

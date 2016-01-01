@@ -91,7 +91,7 @@ public class LauncherApplication extends Application {
         uiUpdater=new UiUpdater();
         uiUpdater.mInfoListener=new UiUpdater.updateInfo() {
             @Override
-            public void updateSongInfo(String title, String album, String artist, Uri artwork) {
+            public void updateSongInfo(String title, String album, String artist, Uri artwork,String path) {
 
             }
         };

@@ -13,4 +13,14 @@
     <string name="title_activity_play_back">PlayBackActivity</string>
     <string name="folder_list_item_type">folder_list_item_type</string>
 
+    <string name="np1">1</string>
+    <string name="np2">2</string>
+    <string name="np3">3</string>
+    <string name="np4">4</string>
+    <string name="np5">5</string>
+    <string name="np6">6</string>
+    <string name="np7">7</string>
+    <string name="np8">8</string>
+    <string name="np9">9</string>
+    <string name="np0">0</string>
 </resources>

@@ -18,7 +18,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Song Name"
             android:id="@+id/songTittle"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
@@ -28,7 +27,6 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ArtistName | Singer Name Dummy Dummy"
             android:id="@+id/textView2"
             android:layout_below="@+id/songTittle"
             android:layout_centerHorizontal="true"
@@ -120,12 +118,14 @@
             android:layout_alignRight="@+id/imageButton4"
             android:layout_alignBottom="@+id/relativeLayout1"/>
         <ImageButton
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:id="@+id/imageButton6"
-            android:background="@drawable/white_menu_1"
+            android:background="@drawable/setting_button"
             android:layout_toRightOf="@+id/relativeLayout1"
             android:layout_alignBottom="@+id/imageButton4"
+            android:cropToPadding="true"
+            android:padding="15dp"
             />
     </RelativeLayout>
 
@@ -142,7 +142,15 @@
             android:layout_height="match_parent"
             android:id="@+id/imageView6"
             android:layout_margin="10dp"
+
             />
+        <android.support.v4.view.ViewPager
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/viewpageart"
+            android:layout_margin="10dp"
+            android:visibility="gone"
+            ></android.support.v4.view.ViewPager>
     </RelativeLayout>
 
     <RelativeLayout
@@ -182,7 +190,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="New Text"
+            android:text=""
             android:id="@+id/songAlbum"
             android:textColor="#ffffff"
             android:layout_below="@+id/textView5"

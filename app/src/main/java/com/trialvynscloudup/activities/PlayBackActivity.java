@@ -1,5 +1,6 @@
 package com.trialvynscloudup.activities;
 
+import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -7,28 +8,50 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.SeekBar;
+import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -36,14 +59,21 @@ import com.trialvynscloudup.MainActivity;
 import music.real.com.realmusic.PlayBackUtility;
 
 import com.trialvynscloudup.R;
+import com.trialvynscloudup.adapter.AdapterUtility;
+import com.trialvynscloudup.adapter.AlbumartPagerAdapter;
+import com.trialvynscloudup.dialogues.SleepTimerDialogue;
 import com.trialvynscloudup.services.MusicPlaybackService;
 import com.trialvynscloudup.utilities.CommonUtility;
 import com.trialvynscloudup.utilities.LauncherApplication;
 import com.trialvynscloudup.utilities.UiUpdater;
+import com.trialvynscloudup.utilities.Utilities;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 
-public class PlayBackActivity extends AppCompatActivity implements View.OnClickListener,SeekBar.OnSeekBarChangeListener
+public class PlayBackActivity extends AppCompatActivity implements View.OnClickListener,SeekBar.OnSeekBarChangeListener,
+        ViewPager.OnPageChangeListener
 {
         private String Tag="PLAYBACKACTIVITY";
         public static PlayBackUtility mInterface;
@@ -62,10 +92,23 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         int noofsongsplayed=0;
         private SharedPreferences sharedPreferences;
         SharedPreferences.Editor editor;
+        private final int CONTROLLER_OPEN=6;
+        ImageLoader imageLoader;
+        DisplayImageOptions options;
+        private SleepTimerDialogue sleepTimerDialogue;
+        private Utilities utilities=new Utilities();
+        CountDownTimer countDownTimer;
+        private TextView mTextView;
+        private Button num1,num2,num3,num4,num5,num6,num7,num8,num9,num0;
+        private GestureDetector gestureDetector;
+        View.OnTouchListener gestureListener;
+
+        private String sharePath;
+        private ViewPager albumArtPager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.test_2);
+        setContentView(R.layout.activity_playback);
         this.startService(new Intent(PlayBackActivity.this, MusicPlaybackService.class));
         playButton=(ImageButton)findViewById(R.id.imageButton);
         nextButton=(ImageButton)findViewById(R.id.imageButton2);
@@ -82,7 +125,8 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         lyricButton=(ImageButton)findViewById(R.id.imageButton8);
         currentDurationText=(TextView)findViewById(R.id.textView3);
         totalDurationText=(TextView)findViewById(R.id.textView4);
-//        viewPager=(ViewPager)findViewById(R.id.imageView6);
+
+        albumArtPager=(ViewPager)findViewById( R.id.viewpageart);
 
         playButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
@@ -100,36 +144,53 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         type=getIntent.getIntExtra("type", 0);
 
 
+
         playlistId=getIntent.getStringExtra("playlistid");
         commonUtility=new CommonUtility();
 
         Handler handler=new Handler();
         myReceiver = new HeadsetPlugReceiver();
-        sharedPreferences=getSharedPreferences("SONGINFO",MODE_PRIVATE);
+        IntentFilter filter = new IntentFilter(Intent.ACTION_HEADSET_PLUG);
+        registerReceiver(myReceiver, filter);
+        sharedPreferences=getSharedPreferences("SONGINFO", MODE_PRIVATE);
         editor=sharedPreferences.edit();
         uiUpdater=new UiUpdater();
 
-//        CustomPagerAdapter customPagerAdapter=new CustomPagerAdapter(getApplicationContext());
-//        viewPager.setAdapter(customPagerAdapter);
+        imageLoader=ImageLoader.getInstance();
+        imageLoader.init(ImageLoaderConfiguration.createDefault(getApplicationContext()));
 
-        if (type==6)
+        sleepTimerDialogue=new SleepTimerDialogue(this);
+
+        // Gesture detection
+        gestureDetector = new GestureDetector(this, new MyGestureDetector());
+        gestureListener = new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                return gestureDetector.onTouchEvent(event);
+            }
+        };
+        /*          when opening from controller */
+        if (type==CONTROLLER_OPEN)
         {
+
             songTitle.setText(commonUtility.getSongTitle());
             songAlbum.setText(commonUtility.getAlbum());
             songArtist.setText(commonUtility.getAlbum());
-            setAlbumArt(commonUtility.geturi());
+            if (commonUtility.geturi()!=null)
+            {
+                setAlbumArt(commonUtility.geturi());
+
+            }
+
 //            Picasso.with(getApplicationContext()).load(commonUtility.geturi()).into(albumArtImage);
 
         }
-        else
-        {
+        else {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     try {
 
-                        Log.e(Tag,""+playlistId);
-                        mInterface.playSong(type,position,playlistId);
+                        mInterface.playSong(type, position, playlistId);
                         playButton.setBackgroundResource(R.drawable.new_pause);
                         commonUtility.setControlerStatus(true);
                         setSharedPreferences();
@@ -140,7 +201,12 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
             },800);
 
         }
-
+/*
+        AdapterUtility adapterUtility=new AdapterUtility();
+        Cursor albumartCursor= adapterUtility.getCursor(this, type, playlistId);
+        AlbumartPagerAdapter albumartPagerAdapter=new AlbumartPagerAdapter(this,albumartCursor);
+        albumArtPager.setAdapter(albumartPagerAdapter);
+        albumArtPager.setOnPageChangeListener(this);*/
         if (CommonUtility.developementStatus)
         {
 
@@ -149,8 +215,10 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         {
             LauncherApplication.getInstance().trackScreenView("Playback activity");
         }
+
         updateUI();
     }
+
 
     public void setSharedPreferences()
     {
@@ -191,10 +259,14 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
                     setRepeat();
                 break;
             case R.id.imageButton6:
-                Intent intent=new Intent(this, MainActivity.class);
-//                startActivity(intent);
+
+                PopupMenu popupMenu=new PopupMenu(this,view);
+                popupMenu.inflate(R.menu.popupmenu_settings);
+                popupMenu.setOnMenuItemClickListener(listitemClick);
+                popupMenu.show();
                 break;
             case R.id.imageButton8:
+                Intent intent;
 
                 trackLyricsClick(songTitle.getText().toString());
                 Uri uri = Uri.parse("http://www.google.com/#q="+songTitle.getText().toString()+" lyrics");
@@ -209,6 +281,28 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
 
         }
     }
+
+    public PlayBackActivity() {
+        super();
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        Log.e("Tagscrolled ",""+position);
+//        albumArtPager.setCurrentItem(position);
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
     public void setShuffle()
     {
         if (commonUtility.getShuffleState()==0)
@@ -291,27 +385,53 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
 
     public void updateUI()
     {
+
+
         noofsongsplayed++;
         uiUpdater.setOnSeekListener(new UiUpdater.updateSeekbar() {
             @Override
             public void updateSeekBar(int progress) {
                 seekBar.setProgress(progress);
-                currentDurationText.setText(""+commonUtility.getCurrentDuration());
-                totalDurationText.setText(""+commonUtility.getTotalDuration());
+                currentDurationText.setText("" + commonUtility.getCurrentDuration());
+                totalDurationText.setText("" + commonUtility.getTotalDuration());
 
             }
         });
 
         uiUpdater.setSongInfoUpdate(new UiUpdater.updateInfo() {
             @Override
-            public void updateSongInfo(String title, String album, String artist,Uri artwork) {
+            public void updateSongInfo(String title, String album, String artist, final Uri artwork,String path) {
+
                 songTitle.setText(title);
                 songAlbum.setText(album + " | " + artist);
                 songArtist.setText(album + " | " + artist);
-                setAlbumArt(artwork);
+                sharePath=path;
+//                setAlbumArt(artwork);
                 updateOnResume();
-//                Picasso.with(getApplicationContext()).load(artwork).into(albumArtImage);
+                imageLoader.loadImage(artwork.toString(), new SimpleImageLoadingListener() {
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        // Do whatever you want with Bitmap
+                        int currentApiversion = Build.VERSION.SDK_INT;
+                        if (currentApiversion >= 16) {
+                            albumArtImage.setBackground(new BitmapDrawable(getApplicationContext().getResources(), loadedImage));
 
+
+                        } else {
+                            imageLoader.displayImage(artwork.toString(), albumArtImage);
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                        super.onLoadingFailed(imageUri, view, failReason);
+                        albumArtImage.setBackgroundResource(R.drawable.default_albumart);
+
+                    }
+
+                });
             }
         });
     }
@@ -344,7 +464,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         super.onPause();
         if (commonUtility.getPlayerStatus())
         {
-            
+
         }
     }
 
@@ -360,10 +480,12 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
     public void releaseService()
     {
         unbindService(serviceConnection);
+        unregisterReceiver(myReceiver);
 
     }
     public void playButtonChange()
     {
+
         if (commonUtility.getPlayerStatus())
         {
             playButton.setBackgroundResource(R.drawable.new_play);
@@ -390,26 +512,213 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
 
     public void setAlbumArt(Uri albumArt)
     {
-        Picasso.with(getApplicationContext()).load(albumArt).into(new Target() {
+        imageLoader.loadImage(albumArt.toString(), new SimpleImageLoadingListener() {
             @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                // Do whatever you want with Bitmap
 
-                albumArtImage.setBackground(new BitmapDrawable(getApplicationContext().getResources(), bitmap));
+
+                albumArtImage.setBackground(new BitmapDrawable(getApplicationContext().getResources(), loadedImage));
 
             }
 
             @Override
-            public void onBitmapFailed(Drawable errorDrawable) {
+            public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                super.onLoadingFailed(imageUri, view, failReason);
+                albumArtImage.setBackgroundResource(R.drawable.default_albumart);
 
             }
 
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-            }
         });
     }
 
+    private PopupMenu.OnMenuItemClickListener listitemClick=new PopupMenu.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem menuItem) {
+            String title,message=null;
+            int type=0;
+            switch (menuItem.getItemId())
+            {
+                case R.id.share:
+
+                    share();
+                    break;
+                case R.id.sleep:
+
+                    sleep();
+                    break;
+
+            }
+
+            return false;
+
+        }
+    };
+
+    public void share()
+    {
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("audio/*");
+        Log.e(Tag,""+sharePath);
+        share.putExtra(Intent.EXTRA_STREAM,Uri.parse("file:///"+sharePath));
+        startActivity(Intent.createChooser(share, "Share Sound File"));
+    }
+    public void sleep()
+    {
+        sleepTimerDialogue.show();
+        View numpad=(View)sleepTimerDialogue.findViewById(R.id.numpad);
+        init(sleepTimerDialogue);
+
+        final Button startButton=(Button)sleepTimerDialogue.findViewById(R.id.button5);
+        mTextView=(TextView)sleepTimerDialogue.findViewById(R.id.textView6);
+        mTextView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return true;
+            }
+        });
+        Button cancelButton=(Button)sleepTimerDialogue.findViewById(R.id.button);
+        if (commonUtility.getTimerStatus())
+        {
+            startButton.setText("stop");
+            commonUtility.setTimerStatus(false);
+            deActivateNumPad(true);
+        }
+        else
+        {
+            deActivateNumPad(false);
+        }
+
+
+
+        startButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String mTextViewText=mTextView.getText().toString();
+
+                if (commonUtility.getTimerStatus()) {
+                    startButton.setText("start");
+                    countDownTimer.cancel();
+                    mTextView.setText(" mins");
+                    commonUtility.setTimerStatus(false);
+                    deActivateNumPad(false);
+
+                } else if (mTextViewText.length()>5){
+                    deActivateNumPad(true);
+                    startButton.setText("stop");
+                    int timer;
+                    if (mTextViewText.length()==6)
+                    {
+                         timer = Integer.parseInt(mTextViewText.substring(0,1));
+                    }
+                    else
+                    {
+                         timer = Integer.parseInt(mTextViewText.substring(0,2));
+                    }
+
+                  countDownTimer=  new CountDownTimer(TimeUnit.MINUTES.toMillis(timer), 1000) {
+
+                        public void onTick(long millisUntilFinished) {
+                            commonUtility.setTimerStatus(true);
+                            String timeleft = utilities.milliSecondsToTimer(millisUntilFinished);
+
+                            UiUpdater.timerInterface.updateTimerText(timeleft);
+                            //here you can have your logic to set text to edittext
+
+                        }
+
+                        public void onFinish() {
+                            mTextView.setText(" mins");
+                            commonUtility.setTimerStatus(false);
+                            deActivateNumPad(false);
+                            try {
+                                mInterface.stopSong();
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                    }.start();
+                }
+            }
+        });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sleepTimerDialogue.dismiss();
+            }
+        });
+
+        trackSleep();
+
+    }
+    public void init(SleepTimerDialogue dialogue)
+    {
+        num0=(Button)dialogue.findViewById(R.id.numpad0);
+        num1=(Button)dialogue.findViewById(R.id.numpad1);
+        num2=(Button)dialogue.findViewById(R.id.numpad2);
+        num3=(Button)dialogue.findViewById(R.id.numpad3);
+        num4=(Button)dialogue.findViewById(R.id.numpad4);
+        num5=(Button)dialogue.findViewById(R.id.numpad5);
+        num6=(Button)dialogue.findViewById(R.id.numpad6);
+        num7=(Button)dialogue.findViewById(R.id.numpad7);
+        num8=(Button)dialogue.findViewById(R.id.numpad8);
+        num9=(Button)dialogue.findViewById(R.id.numpad9);
+        num0.setOnClickListener(numpadButtonClickListener());
+        num1.setOnClickListener(numpadButtonClickListener());
+        num2.setOnClickListener(numpadButtonClickListener());
+        num3.setOnClickListener(numpadButtonClickListener());
+        num4.setOnClickListener(numpadButtonClickListener());
+        num5.setOnClickListener(numpadButtonClickListener());
+        num6.setOnClickListener(numpadButtonClickListener());
+        num7.setOnClickListener(numpadButtonClickListener());
+        num8.setOnClickListener(numpadButtonClickListener());
+        num9.setOnClickListener(numpadButtonClickListener());
+    }
+    public void deActivateNumPad(boolean status)
+    {
+        if (status)
+        {
+            num0.setEnabled(false);
+            num1.setEnabled(false);
+            num2.setEnabled(false);
+            num3.setEnabled(false);
+            num4.setEnabled(false);
+            num5.setEnabled(false);
+            num6.setEnabled(false);
+            num7.setEnabled(false);
+            num8.setEnabled(false);
+            num9.setEnabled(false);
+        }
+        else
+        {
+            num0.setEnabled(true);
+            num1.setEnabled(true);
+            num2.setEnabled(true);
+            num3.setEnabled(true);
+            num4.setEnabled(true);
+            num5.setEnabled(true);
+            num6.setEnabled(true);
+            num7.setEnabled(true);
+            num8.setEnabled(true);
+            num9.setEnabled(true);
+        }
+
+
+
+    }
+
+    private View.OnClickListener numpadButtonClickListener() {
+        return new View.OnClickListener() {
+            public void onClick(View v) {
+
+                if (mTextView.getText().length()<7) {
+                    String number = (((Button) v).getText().toString());
+                    mTextView.setText(number + mTextView.getText().toString());
+                }
+            }
+        };
+    }
     /*          change status bar color             */
 
     public void changeStatusbarColor(int color)
@@ -459,9 +768,13 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         }
     };
 
+    private boolean headsetConnected = false;
+
     private class HeadsetPlugReceiver extends BroadcastReceiver {
         @Override public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
+
+            if (headsetConnected && intent.getAction().equals(Intent.ACTION_HEADSET_PLUG)) {
+                headsetConnected=false;
                 int state = intent.getIntExtra("state", -1);
                 switch (state) {
                     case 0:
@@ -477,6 +790,10 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
                         break;
                     default:
                 }
+            }
+            else if (!headsetConnected && intent.getIntExtra("state", 0) == 1)
+            {
+                headsetConnected=true;
             }
         }
         }
@@ -499,6 +816,45 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+
+    class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
+        private static final int SWIPE_MIN_DISTANCE = 120;
+        private static final int SWIPE_MAX_OFF_PATH = 250;
+        private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            try {
+                if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+                    return false;
+                // right to left swipe
+                if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                    try {
+                        mInterface.nextSong();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+
+                    Animation animation= AnimationUtils.loadAnimation(getApplicationContext(),R.anim.rightswipe);
+                    albumArtImage.startAnimation(animation);
+                }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                    try {
+                        mInterface.previousSong();
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+                }
+            } catch (Exception e) {
+                // nothing
+            }
+            return false;
+        }
+
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+    }
+
     public void trackLyricsClick(String title)
     {
         if (CommonUtility.developementStatus)
@@ -510,6 +866,19 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
             String deviceName = Build.BRAND+" "+Build.MODEL;
 
             LauncherApplication.getInstance().trackEvent("lyricsClick",title,deviceName);
+        }
+    }
+    public void trackSleep()
+    {
+        if (CommonUtility.developementStatus)
+        {
+
+        }
+        else
+        {
+            String deviceName = Build.BRAND+" "+Build.MODEL;
+
+            LauncherApplication.getInstance().trackEvent("sleep","sleepCheck",deviceName);
         }
     }
 }

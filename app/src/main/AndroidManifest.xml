@@ -89,6 +89,11 @@
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".receiver.HeadsetPlugReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.HEADSET_PLUG" />
+            </intent-filter>
+        </receiver>
 
         <meta-data
             android:name="io.fabric.ApiKey"

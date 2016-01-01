@@ -20,7 +20,9 @@ public class CommonUtility   {
     private static String subFolderName;
     private static ArrayList<String > subFolderList;
     private static int currentFragmentId=1;
+    private static boolean timerStatus=false;
     public static boolean developementStatus=true;
+
     public CommonUtility() {
     }
 
@@ -75,7 +77,10 @@ public class CommonUtility   {
     {
         return controllerStatus;
     }
-
+    public static boolean getTimerStatus()
+    {
+        return timerStatus;
+    }
 
     public void setSongTitle(String songTitle)
     {
@@ -125,6 +130,10 @@ public class CommonUtility   {
     public void setControlerStatus(boolean status)
     {
         this.controllerStatus=status;
+    }
+    public void setTimerStatus(boolean status)
+    {
+        this.timerStatus=status;
     }
 
 }

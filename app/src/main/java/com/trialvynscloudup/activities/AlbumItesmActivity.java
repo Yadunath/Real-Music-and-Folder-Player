@@ -14,6 +14,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 
 
@@ -91,10 +92,12 @@ public class AlbumItesmActivity extends AppCompatActivity {
                 listCursorAdapter=new TrackListCursorAdapter(AlbumItesmActivity.this,cursor,2,mediaid);
                 break;
             case TYPE_GENRE:
+                Uri uri2=MediaStore.Audio.Genres.Members.getContentUri("external", Long.parseLong(mediaid));
                 where=MediaStore.Audio.Media._ID + "=?";
-                cursor=managedQuery(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, where,wherVal ,order);
-                listCursorAdapter=new TrackListCursorAdapter(AlbumItesmActivity.this,cursor,2,mediaid);
+                cursor=managedQuery(uri2, null, null,null ,order);
+                listCursorAdapter=new TrackListCursorAdapter(AlbumItesmActivity.this,cursor,3,mediaid);
                 break;
+
             case TYPE_PLAYLIST:
                 where=MediaStore.Audio.Media._ID + "=?";
                 long id=Long.parseLong(mediaid);
@@ -146,6 +149,7 @@ public class AlbumItesmActivity extends AppCompatActivity {
         super.onResume();
         if (commonUtility.getControllerStatus())
         {
+            findViewById(R.id.bottombar).setVisibility(View.VISIBLE);
             ControlFragment fragment=new ControlFragment();
             android.app.FragmentManager fragmentManager=getFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.bottombar,fragment).commit();

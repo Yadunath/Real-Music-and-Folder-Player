@@ -6,4 +6,6 @@
     <color name="purple_background_light">#7E608A</color>
     <color name="playback_control_bg">#2b252d</color>
     <color name="notification_bg">#000000</color>
+    <color name="white">#ffffff</color>
+    <color name="divider_background">#e1e1e1</color>
 </resources>
