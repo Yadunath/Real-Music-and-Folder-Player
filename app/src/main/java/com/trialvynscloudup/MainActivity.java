@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         if (commonUtility.getControllerStatus()) {
-           displayeControlFragment();
+           displayControlFragment();
         }
     }
     @Override
@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
         releaseService();
     }
 
-    public void displayeControlFragment()
+    public void displayControlFragment()
     {
         findViewById(R.id.bottombar).setVisibility(View.VISIBLE);
         ControlFragment fragment = new ControlFragment();
@@ -338,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            displayeControlFragment();
+            displayControlFragment();
 
         }
     }

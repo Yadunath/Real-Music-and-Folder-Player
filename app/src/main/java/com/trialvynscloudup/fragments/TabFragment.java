@@ -92,7 +92,7 @@ public class TabFragment extends Fragment {
         Adapter adapter = new Adapter(getChildFragmentManager());
         adapter.addFragment(new TracksFragment(), "Tracks");
         adapter.addFragment(new AlbumsFragment(), "Albums");
-//        adapter.addFragment(new FilesFoldersFragment(), "Folders");
+        adapter.addFragment(new SuggestedFragment(),"SUGGESTED");
         adapter.addFragment(new FileChooser(),"folder");
         adapter.addFragment(new ArtistFragment(), "Artists");
         adapter.addFragment(new GenreFragment(), "Genres");

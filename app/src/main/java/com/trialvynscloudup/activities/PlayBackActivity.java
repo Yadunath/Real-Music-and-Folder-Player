@@ -105,6 +105,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
 
         private String sharePath;
         private ViewPager albumArtPager;
+        int currentApiversion;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -143,6 +144,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         position=getIntent.getIntExtra("position", 0);
         type=getIntent.getIntExtra("type", 0);
 
+         currentApiversion = Build.VERSION.SDK_INT;
 
 
         playlistId=getIntent.getStringExtra("playlistid");
@@ -408,17 +410,17 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
                 sharePath=path;
 //                setAlbumArt(artwork);
                 updateOnResume();
+
                 imageLoader.loadImage(artwork.toString(), new SimpleImageLoadingListener() {
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                         // Do whatever you want with Bitmap
-                        int currentApiversion = Build.VERSION.SDK_INT;
                         if (currentApiversion >= 16) {
                             albumArtImage.setBackground(new BitmapDrawable(getApplicationContext().getResources(), loadedImage));
 
 
                         } else {
-                            imageLoader.displayImage(artwork.toString(), albumArtImage);
+                            Picasso.with(getApplicationContext()).load(artwork.toString()).into(albumArtImage);
                         }
 
 
@@ -427,7 +429,13 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
                     @Override
                     public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
                         super.onLoadingFailed(imageUri, view, failReason);
-                        albumArtImage.setBackgroundResource(R.drawable.default_albumart);
+                        if (currentApiversion >= 16) {
+                            albumArtImage.setBackgroundResource(R.drawable.default_albumart);
+
+
+                        } else {
+                            Picasso.with(getApplicationContext()).load(R.drawable.default_albumart).into(albumArtImage);
+                        }
 
                     }
 
@@ -510,7 +518,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
 
            /*                      Update AlbumArt                     */
 
-    public void setAlbumArt(Uri albumArt)
+    public void setAlbumArt(final Uri albumArt)
     {
         imageLoader.loadImage(albumArt.toString(), new SimpleImageLoadingListener() {
             @Override
@@ -518,8 +526,13 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
                 // Do whatever you want with Bitmap
 
 
-                albumArtImage.setBackground(new BitmapDrawable(getApplicationContext().getResources(), loadedImage));
+                if (currentApiversion >= 16) {
+                    albumArtImage.setBackground(new BitmapDrawable(getApplicationContext().getResources(), loadedImage));
 
+
+                } else {
+                    Picasso.with(getApplicationContext()).load(albumArt.toString()).into(albumArtImage);
+                }
             }
 
             @Override

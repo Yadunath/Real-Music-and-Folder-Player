@@ -30,6 +30,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.RemoteControlClient;
 import android.net.Uri;
 import android.nfc.Tag;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
@@ -45,6 +46,7 @@ import com.trialvynscloudup.R;
 import com.trialvynscloudup.activities.PlayBackActivity;
 import com.trialvynscloudup.receiver.NotificationBroadcast;
 import com.trialvynscloudup.utilities.CommonUtility;
+import com.trialvynscloudup.utilities.LauncherApplication;
 import com.trialvynscloudup.utilities.UiUpdater;
 import com.trialvynscloudup.utilities.Utilities;
 
@@ -68,6 +70,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 	private final int TYPE_PLAYLIST=4;
 	private final int TYPE_FOLDERS=5;
 
+	private final int TYPE_SUGGESTED=7;
 	private  CommonUtility commonUtility;
 	private ComponentName remoteComponentName;
 	private RemoteControlClient remoteControlClient;
@@ -212,6 +215,10 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 /*				String wherFolder=MediaStore.Audio.Media.DATA + " like ? "+" and "+MediaStore.Audio.Media.DATA + " not like ?";
 				String whereValue[]=new String[]{"%"+ playlistId +"%","%"+ commonUtility.getSubFolderName() +"%"};
 	*/			folderSelectionQuery(playlistId);
+				break;
+			case TYPE_SUGGESTED:
+				mCursor=getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,null,null,  MediaStore.Audio.Media.DATE_ADDED +" DESC"+" LIMIT 25");
+				trackEvent();
 				break;
 		}
 
@@ -642,6 +649,20 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 		nextSong();
 		return true;
 	}
+	public void trackEvent()
+	{
+		if (CommonUtility.developementStatus)
+		{
+
+		}
+		else
+		{
+
+
+			LauncherApplication.getInstance().trackEvent("Service", "suggested list","music playing" );
+		}
+	}
+
 
 	static class PlaybackStub extends PlayBackUtility.Stub
 	{
