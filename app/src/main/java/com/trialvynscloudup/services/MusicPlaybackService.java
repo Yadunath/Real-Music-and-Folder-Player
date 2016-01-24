@@ -281,6 +281,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 			commonUtility.setSongTitle(songTitle);
 			commonUtility.setAlbumName(albumName);
 			commonUtility.setAlbumArtUri(uriArtWork);
+
 		}
 		return dataPath;
 	}
@@ -292,6 +293,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 		editor.putString("playlistId", playlistId);
 		editor.commit();
 		mediaPlayBack(getDatapath());
+
 
 	}
 	public void pauseSong(int pauseType)

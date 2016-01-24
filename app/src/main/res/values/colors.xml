@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="notification_bar_background">#331a3e</color>
+    <color name="notification_default">#e18382</color>
     <color name="window_background">#FFF5F5F5</color>
     <color name="purple_background">#331a3e</color>
     <color name="purple_background_1">#643C75</color>

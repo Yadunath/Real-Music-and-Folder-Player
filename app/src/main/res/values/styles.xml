@@ -6,7 +6,7 @@
 
     <style name="Base.Theme.DesignDemo" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/purple_background</item>
-        <item name="colorPrimaryDark">#e18382</item>
+        <item name="colorPrimaryDark">@color/notification_default</item>
         <item name="colorAccent">#FF4081</item>
         <item name="android:windowBackground">@color/window_background</item>
     </style>
@@ -34,6 +34,12 @@
         <item name="android:fontFamily">sans-serif-light</item>
         <item name="android:gravity">center</item>
         <item name="android:background">@drawable/numpad_background</item>
+    </style>
+    <style name="tabtextstyle">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize" >12sp</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:gravity">center</item>
     </style>
 </resources>
 

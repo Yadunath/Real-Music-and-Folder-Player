@@ -7,4 +7,5 @@
     <dimen name="text_size_track_name">19sp</dimen>
     <dimen name="notification_button_size">28dp</dimen>
     <dimen name="notification_text_width">70dp</dimen>
+
 </resources>

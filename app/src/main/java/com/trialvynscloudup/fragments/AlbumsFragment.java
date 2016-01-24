@@ -44,7 +44,7 @@ public class AlbumsFragment extends Fragment {
         gridView.setHasFixedSize(true);
         mLayoutManager = new GridLayoutManager(getActivity(),2);
         gridView.setLayoutManager(mLayoutManager);
-        gridView.addItemDecoration(new SpacesItemDecoration(10));
+        gridView.addItemDecoration(new SpacesItemDecoration(20));
     }
 
     @Override
@@ -81,6 +81,7 @@ public class AlbumsFragment extends Fragment {
             outRect.left = space;
             outRect.right = space;
             outRect.bottom = space;
+
 
             // Add top margin only for the first item to avoid double space between items
             if(parent.getChildLayoutPosition(view) == 0)

@@ -60,12 +60,14 @@ public class FileChooser extends Fragment implements AdapterView.OnItemClickList
 		fill(currentDir);
 	}
 
+
 	private void fill(File f)
 	{
 
 		number=0;
 		subFolderList=new ArrayList<>();
 		File[]dirs = f.listFiles();
+
 //		this.setTitle("Current Dir: " + f.getName());
 		List<Item>dir = new ArrayList<Item>();
 		List<Item>fls = new ArrayList<Item>();

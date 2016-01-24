@@ -18,7 +18,7 @@
         </RelativeLayout>
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="65dp"
+            android:layout_height="@dimen/height_bottombar"
             android:id="@+id/bottombar"
             android:layout_alignParentBottom="true"
             android:visibility="gone"

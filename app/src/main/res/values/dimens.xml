@@ -7,5 +7,7 @@
     <dimen name="text_size_track_name">19sp</dimen>
     <dimen name="notification_text_width">90dp</dimen>
     <dimen name="numpad_text_size">48dp</dimen>
-
+    <dimen name="margin_viewpager">10dp</dimen>
+    <dimen name="height_bottombar">50dp</dimen>
+    <dimen name="size_albumart_control">40dp</dimen>
 </resources>
