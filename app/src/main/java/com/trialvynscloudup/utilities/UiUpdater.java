@@ -21,7 +21,7 @@ public class UiUpdater {
 
     public interface updateInfo
     {
-        public void updateSongInfo(String title,String album,String artist,Uri artwork,String path);
+        public void updateSongInfo(String title,String album,String artist,Uri artwork,String path,int trackPosition);
     }
     public void setSongInfoUpdate(updateInfo listener)
     {

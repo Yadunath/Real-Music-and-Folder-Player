@@ -85,7 +85,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         private TextView songTitle,songAlbum,songArtist,currentDurationText,totalDurationText;
         private ImageView albumArtImage;
         private  ImageButton closeButton,menuButton,lyricButton;
-//        private ViewPager viewPager;
+        
         private CommonUtility commonUtility;
         private HeadsetPlugReceiver myReceiver;
         private UiUpdater uiUpdater;
@@ -104,8 +104,9 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         View.OnTouchListener gestureListener;
 
         private String sharePath;
-        private ViewPager albumArtPager;
+        private ViewPager viewPagerAlbumArt;
         int currentApiversion;
+        private int trackPosition;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,7 +128,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         currentDurationText=(TextView)findViewById(R.id.textView3);
         totalDurationText=(TextView)findViewById(R.id.textView4);
 
-        albumArtPager=(ViewPager)findViewById( R.id.viewpageart);
+        viewPagerAlbumArt=(ViewPager)findViewById( R.id.viewpageart);
 
         playButton.setOnClickListener(this);
         nextButton.setOnClickListener(this);
@@ -194,8 +195,17 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
 
                         mInterface.playSong(type, position, playlistId);
                         playButton.setBackgroundResource(R.drawable.new_pause);
+                        
+/*                        AdapterUtility adapterUtility=new AdapterUtility();
+                        Cursor albumartCursor= adapterUtility.getCursor(PlayBackActivity.this, type, playlistId);
+                        AlbumartPagerAdapter albumartPagerAdapter=new AlbumartPagerAdapter(PlayBackActivity.this,albumartCursor);
+                        viewPagerAlbumArt.setAdapter(albumartPagerAdapter);
+                        viewPagerAlbumArt.setCurrentItem(position);
+                        viewPagerAlbumArt.setOnPageChangeListener(PlayBackActivity.this);
+                        trackPosition=position;*/
                         commonUtility.setControlerStatus(true);
                         setSharedPreferences();
+                        
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
@@ -203,12 +213,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
             },800);
 
         }
-/*
-        AdapterUtility adapterUtility=new AdapterUtility();
-        Cursor albumartCursor= adapterUtility.getCursor(this, type, playlistId);
-        AlbumartPagerAdapter albumartPagerAdapter=new AlbumartPagerAdapter(this,albumartCursor);
-        albumArtPager.setAdapter(albumartPagerAdapter);
-        albumArtPager.setOnPageChangeListener(this);*/
+
         if (CommonUtility.developementStatus)
         {
 
@@ -291,18 +296,34 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
-        Log.e("Tagscrolled ",""+position);
-//        albumArtPager.setCurrentItem(position);
+        
     }
 
     @Override
     public void onPageSelected(int position) {
-
+        Log.e("Tag",""+trackPosition);
+        if (trackPosition<position)
+        {
+            try {
+                mInterface.nextSong();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        else if (trackPosition>position)
+        {
+            try {
+                mInterface.previousSong();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
-
+        
+        
     }
 
     public void setShuffle()
@@ -323,6 +344,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    /*      Change state of repeat  */
     public void setRepeat()
     {
         switch (commonUtility.getRepeatState())
@@ -402,15 +424,16 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
 
         uiUpdater.setSongInfoUpdate(new UiUpdater.updateInfo() {
             @Override
-            public void updateSongInfo(String title, String album, String artist, final Uri artwork,String path) {
-
+            public void updateSongInfo(String title, String album, String artist, final Uri artwork,String path,int trackPosition) {
+                
                 songTitle.setText(title);
                 songAlbum.setText(album + " | " + artist);
                 songArtist.setText(album + " | " + artist);
                 sharePath=path;
 //                setAlbumArt(artwork);
                 updateOnResume();
-
+                trackPosition=position;
+//                viewPagerAlbumArt.setCurrentItem(trackPosition);
                 imageLoader.loadImage(artwork.toString(), new SimpleImageLoadingListener() {
                     @Override
                     public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {

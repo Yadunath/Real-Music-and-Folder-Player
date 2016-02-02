@@ -38,7 +38,7 @@ public class AlbumartPagerAdapter extends PagerAdapter {
 
     @Override
     public boolean isViewFromObject(View view, Object object) {
-		return true;
+        return view == ((RelativeLayout) object);
     }
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
@@ -53,8 +53,8 @@ public class AlbumartPagerAdapter extends PagerAdapter {
        View itemView= inflater.inflate(R.layout.viewpager_item, container, false);
         ImageView imageView=(ImageView)itemView.findViewById(R.id.imageView3);
         Picasso.with(mcontext).load(uriArtWork).into(imageView);
-        Log.e("TAGuri", "" + uriArtWork);
-        ((ViewPager) container).addView(itemView);
+        
+        container.addView(itemView);
         return itemView;
     }
     @Override

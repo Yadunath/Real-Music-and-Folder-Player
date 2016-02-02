@@ -277,7 +277,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 			int albumId = mCursor.getInt(mCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
 			Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
 			Uri uriArtWork = ContentUris.withAppendedId(sArtworkUri, albumId);
-			UiUpdater.mInfoListener.updateSongInfo(songTitle, albumName, artistName, uriArtWork,dataPath);
+			UiUpdater.mInfoListener.updateSongInfo(songTitle, albumName, artistName, uriArtWork,dataPath,trackPosition);
 			commonUtility.setSongTitle(songTitle);
 			commonUtility.setAlbumName(albumName);
 			commonUtility.setAlbumArtUri(uriArtWork);
@@ -348,6 +348,7 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 
 			remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
 
+			cancelNotification();
 		}
 	}
 
