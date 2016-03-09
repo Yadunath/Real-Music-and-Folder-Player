@@ -23,6 +23,7 @@ public class ArtistListCursorAdapter extends CursorRecyclerViewAdapter<ArtistLis
     Cursor cursor;
     private Context context;
     int type;
+    public static int TYPE_PLAYLIST=3;
 
     public ArtistListCursorAdapter(Context context, Cursor cursor,int type) {
         super(context, cursor);
@@ -35,7 +36,7 @@ public class ArtistListCursorAdapter extends CursorRecyclerViewAdapter<ArtistLis
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View returnView= LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_tracks,parent,false);
+        View returnView= LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_tracks, parent, false);
         ViewHolder viewHolder=new ViewHolder(returnView);
         return viewHolder;
     }
@@ -59,7 +60,16 @@ public class ArtistListCursorAdapter extends CursorRecyclerViewAdapter<ArtistLis
         MyListItem myListItem=MyListItem.artistList(cursor,type);
 
         viewHolder.mArtistName.setText(myListItem.getArtistName());
-        viewHolder.mNoofsongs.setText(myListItem.getName()+"  track");
+        if (type==TYPE_PLAYLIST)
+        {
+            viewHolder.mNoofsongs.setText("  ");
+
+        }
+        else 
+        {
+            viewHolder.mNoofsongs.setText(myListItem.getName()+"  track");
+
+        }
 
         viewHolder.artistId=myListItem.getAlbumId();
 
@@ -73,8 +83,6 @@ public class ArtistListCursorAdapter extends CursorRecyclerViewAdapter<ArtistLis
             public void onClick(View view) {
 
                         switchFragment(viewHolder.artistId);
-
-
 
             }
         });

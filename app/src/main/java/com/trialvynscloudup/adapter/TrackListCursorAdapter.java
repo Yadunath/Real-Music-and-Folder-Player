@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +18,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AlphabetIndexer;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,7 +31,9 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Locale;
 
+import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 import com.trialvynscloudup.MainActivity;
 import com.trialvynscloudup.R;
 import com.trialvynscloudup.activities.AlbumItesmActivity;
@@ -42,7 +46,8 @@ import com.trialvynscloudup.utilities.UiUpdater;
 /**
  * Created by Yadunath.narayanan on 6/26/2015.
  */
-public class TrackListCursorAdapter extends CursorRecyclerViewAdapter<TrackListCursorAdapter.ViewHolder>{
+public class TrackListCursorAdapter extends CursorRecyclerViewAdapter<TrackListCursorAdapter.ViewHolder>
+    implements FastScrollRecyclerView.SectionedAdapter{
 
     private String TAG="TrackListCursorAdapter";
     Cursor cursor;
@@ -51,6 +56,7 @@ public class TrackListCursorAdapter extends CursorRecyclerViewAdapter<TrackListC
     private String  playlistId;
     private int currentPosition;
     private int TYPE_PLAYLIST=4;
+    
     public TrackListCursorAdapter(Context context, Cursor cursor,int type,String id) {
         super(context, cursor);
         this.cursor = cursor;
@@ -64,6 +70,15 @@ public class TrackListCursorAdapter extends CursorRecyclerViewAdapter<TrackListC
         View returnView= LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_tracks, parent, false);
         ViewHolder viewHolder=new ViewHolder(returnView);
         return viewHolder;
+    }
+
+    @NonNull
+    @Override
+    public String getSectionName(int position) {
+        
+        cursor.moveToPosition(position);
+        String displayName=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME));
+        return displayName.substring(0,1).toUpperCase(Locale.ENGLISH);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder

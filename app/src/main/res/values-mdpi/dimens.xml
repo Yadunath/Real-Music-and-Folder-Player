@@ -6,4 +6,5 @@
     <dimen name="grid_horizontal_spacing">15dp</dimen>
     <dimen name="text_size_track_name">19sp</dimen>
     <dimen name="notification_text_width">60dp</dimen>
+    <dimen name="album_item_height">200dp</dimen>
 </resources>

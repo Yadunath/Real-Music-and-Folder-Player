@@ -19,7 +19,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:adjustViewBounds="true"
-            android:scaleType="centerCrop" />
+            android:scaleType="centerCrop" 
+            android:transitionName="gridImage"/>
 
         <RelativeLayout
             android:id="@+id/gridViewTextLayout"

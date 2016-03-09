@@ -25,10 +25,13 @@ public class GenreFragment extends Fragment {
     private LinearLayoutManager mlayoutManager;
     private Cursor mCursor;
 
+    private int index = -1;
+    private int top = -1;
+    
+    
     public GenreFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,6 +63,26 @@ public class GenreFragment extends Fragment {
         super.onResume();
         CommonUtility commonUtility=new CommonUtility();
         commonUtility.setCurrentFragmentId(1);
-
+        if(index != -1)
+        {
+            mlayoutManager.scrollToPositionWithOffset( index, top);
+        }
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        index = mlayoutManager.findFirstVisibleItemPosition();
+        View v = mRecyclerView.getChildAt(0);
+        top = (v == null) ? 0 : (v.getTop() - mRecyclerView.getPaddingTop());
+    }
+
+    @Override
+    public void onDestroyView() {
+
+        super.onDestroyView();
+        index=-1;
+        top=-1;
+    }
+
 }

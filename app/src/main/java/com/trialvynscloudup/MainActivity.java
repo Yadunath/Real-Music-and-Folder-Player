@@ -8,11 +8,13 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -37,6 +39,7 @@ import music.real.com.realmusic.PlayBackUtility;
 import com.crashlytics.android.Crashlytics;
 import com.trialvynscloudup.activities.AlbumItesmActivity;
 import com.trialvynscloudup.activities.PlayBackActivity;
+import com.trialvynscloudup.equalizer.EqualizerFragment;
 import com.trialvynscloudup.fragments.AlbumsFragment;
 import com.trialvynscloudup.fragments.ArtistFragment;
 import com.trialvynscloudup.fragments.ControlFragment;
@@ -51,14 +54,16 @@ import com.trialvynscloudup.utilities.CommonUtility;
 import com.trialvynscloudup.utilities.LauncherApplication;
 
 public class MainActivity extends AppCompatActivity {
+    
+    private static String LOG_TAG=MainActivity.class.getName();
         DrawerLayout mDrawerLayout;
     PlayBackUtility sinterface;
     private CommonUtility commonUtility;
     SharedPreferences sharedPreferences;
-
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        
         super.onCreate(savedInstanceState);
         Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
@@ -77,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
         sharedPreferences=getSharedPreferences("SONGINFO", MODE_PRIVATE);
 
     }
-
     public void hiddenFeature()
     {
         final String[] colorValue={"#56627c","#59567c","#7c5673","#1E2028","#303540"};
@@ -131,14 +135,24 @@ public class MainActivity extends AppCompatActivity {
                         Class fragmentClass = null;
                         switch (menuItem.getItemId()) {
                             case R.id.nav_my_music:
+                                
+                                
                                 fragmentClass = TabFragment.class;
+                                fragment=new TabFragment();
                                 break;
                             case R.id.nav_playlists:
                                 fragmentClass = PlaylistFragment.class;
+                                fragment=new PlaylistFragment();
+                                break;
+                            case R.id.nav_equalizer:
+                                fragment=new EqualizerFragment();
+                                break;
 
                         }
 
-                        fragmentTransaction(fragmentClass);
+//                        fragmentTransaction(fragmentClass);
+                        fragmentTransactionTest(fragment);
+                        
                         return true;
                     }
                 });
@@ -156,6 +170,13 @@ public class MainActivity extends AppCompatActivity {
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.parentLayout, fragment).commit();
         }
+    
+    public void fragmentTransactionTest(Fragment fragment)
+    {
+        commonUtility.setCurrentFragmentId(1);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.parentLayout, fragment).commit();
+    }
     static class Adapter extends FragmentPagerAdapter {
         public static final List<Fragment> mFragments = new ArrayList<>();
         private final List<String> mFragmentTitles = new ArrayList<>();
@@ -185,16 +206,33 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void albumClick(int type,Uri imageUri,String albumId)
+    public void albumClick(int type,Uri imageUri,String albumId,View view)
     {
         Intent intent=new Intent(MainActivity.this, AlbumItesmActivity.class);
         intent.putExtra("TYPE",type);
         intent.putExtra("imageuri",""+imageUri);
         intent.putExtra("media", albumId);
+        ActivityOptionsCompat options = ActivityOptionsCompat.
+                makeSceneTransitionAnimation(this, view, "gridImage");
+        if (Build.VERSION.SDK_INT>=16)
+        {
+            startActivity(intent, options.toBundle());
+        }
+        else 
+        {
+            startActivity(intent);
+        }
+        
+        
+    }
+    public void albumClick(int type,Uri imageUri,String albumId) {
+        Intent intent = new Intent(MainActivity.this, AlbumItesmActivity.class);
+        intent.putExtra("TYPE", type);
+        intent.putExtra("imageuri", "" + imageUri);
+        intent.putExtra("media", albumId);
         startActivity(intent);
     }
-
-
+    
     public void playBack(Cursor cursor,int position,int type,String playlistid)
     {
 
@@ -219,11 +257,22 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
         if (commonUtility.getControllerStatus()) {
            displayControlFragment();
         }
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

@@ -144,7 +144,6 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         Intent getIntent=getIntent();
         position=getIntent.getIntExtra("position", 0);
         type=getIntent.getIntExtra("type", 0);
-
          currentApiversion = Build.VERSION.SDK_INT;
 
 
@@ -258,6 +257,7 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
+                
                 break;
             case R.id.imageButton5:
                     setShuffle();
@@ -331,14 +331,14 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         if (commonUtility.getShuffleState()==0)
         {
             commonUtility.setShuffleState(1);
-            shuffleButton.setBackgroundResource(R.drawable.new_shuffle_on);
+            shuffleButton.setImageResource(R.drawable.new_shuffle_on);
             setSharedPreferencesShuffle(1);
 
         }
         else
         {
             commonUtility.setShuffleState(0);
-            shuffleButton.setBackgroundResource(R.drawable.new_shuffle);
+            shuffleButton.setImageResource(R.drawable.new_shuffle);
             setSharedPreferencesShuffle(0);
 
         }
@@ -351,18 +351,18 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         {
             case 0:
                 commonUtility.setRepeatState(1);
-                repeatButton.setBackgroundResource(R.drawable.new_repeat_one);
+                repeatButton.setImageResource(R.drawable.new_repeat_one);
                 setSharedPreferencesRepeat(1);
                 break;
             case 1:
                 commonUtility.setRepeatState(2);
-                repeatButton.setBackgroundResource(R.drawable.new_repeat_all);
+                repeatButton.setImageResource(R.drawable.new_repeat_all);
                 setSharedPreferencesRepeat(2);
 
                 break;
             case 2:
                 commonUtility.setRepeatState(0);
-                repeatButton.setBackgroundResource(R.drawable.new_repeat);
+                repeatButton.setImageResource(R.drawable.new_repeat);
                 setSharedPreferencesRepeat(0);
                 break;
             default:
@@ -371,11 +371,11 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         }
         if (commonUtility.getShuffleState()==0)
         {
-            shuffleButton.setBackgroundResource(R.drawable.new_shuffle);
+            shuffleButton.setImageResource(R.drawable.new_shuffle);
         }
         else
         {
-            shuffleButton.setBackgroundResource(R.drawable.new_shuffle_on);
+            shuffleButton.setImageResource(R.drawable.new_shuffle_on);
         }
     }
 
@@ -384,14 +384,14 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
     {
         switch (commonUtility.getRepeatState()) {
             case 0:
-                repeatButton.setBackgroundResource(R.drawable.new_repeat);
+                repeatButton.setImageResource(R.drawable.new_repeat);
                 break;
             case 1:
-                repeatButton.setBackgroundResource(R.drawable.new_repeat_one);
+                repeatButton.setImageResource(R.drawable.new_repeat_one);
 
                 break;
             case 2:
-                repeatButton.setBackgroundResource(R.drawable.new_repeat_all);
+                repeatButton.setImageResource(R.drawable.new_repeat_all);
                 break;
             default:
 
@@ -399,10 +399,10 @@ public class PlayBackActivity extends AppCompatActivity implements View.OnClickL
         switch (commonUtility.getShuffleState())
         {
             case 0:
-                shuffleButton.setBackgroundResource(R.drawable.new_shuffle);
+                shuffleButton.setImageResource(R.drawable.new_shuffle);
                 break;
             case 1:
-                shuffleButton.setBackgroundResource(R.drawable.new_shuffle_on);
+                shuffleButton.setImageResource(R.drawable.new_shuffle_on);
                 break;
         }
         }

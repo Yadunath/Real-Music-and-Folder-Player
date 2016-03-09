@@ -12,4 +12,5 @@
     <color name="divider_background">#e1e1e1</color>
     <color name="recent_text_color">#ec062c</color>
     <color name="tab_text_color">#969494</color>
+    <color name="black">#000000</color>
 </resources>

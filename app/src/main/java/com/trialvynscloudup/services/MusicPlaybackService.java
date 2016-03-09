@@ -349,6 +349,8 @@ public class MusicPlaybackService extends Service implements OnCompletionListene
 			remoteControlClient.setPlaybackState(RemoteControlClient.PLAYSTATE_PAUSED);
 
 			cancelNotification();
+			
+			
 		}
 	}
 

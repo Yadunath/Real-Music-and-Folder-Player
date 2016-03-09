@@ -2,7 +2,8 @@
 <resources>
 
     <style name="AppTheme" parent="Base.Theme.DesignDemo">
-        
+        <item name="android:windowContentTransitions">true</item>
+
 
     </style>
 

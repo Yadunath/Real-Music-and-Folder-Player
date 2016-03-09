@@ -26,6 +26,10 @@
             android:id="@+id/nav_playlists"
             android:icon="@drawable/drawer_playlist"
             android:title="Playlists" />
+        <item
+            android:id="@+id/nav_equalizer"
+            android:icon="@drawable/drawer_equalizer"
+            android:title="Equalizer"/>
 
     </group>
 

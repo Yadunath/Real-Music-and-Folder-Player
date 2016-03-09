@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -61,8 +62,8 @@ public class AlbumItesmActivity extends AppCompatActivity {
         final String mediaid=intent.getStringExtra("media");
         type=intent.getIntExtra("TYPE",1);
         Uri myUri = Uri.parse(uri);
-        Picasso.with(getApplicationContext()).load(myUri).into(imageViewTop);
-//        setAlbumArt(myUri);
+//        Picasso.with(getApplicationContext()).load(myUri).into(imageViewTop);
+        setAlbumArt(myUri);
       /*        Recycler view adapter --adding songs from albums  to listview*/
 
 
@@ -122,14 +123,20 @@ public class AlbumItesmActivity extends AppCompatActivity {
 
            /*                      Update AlbumArt                     */
 
-    public void setAlbumArt(Uri albumArt)
+    public void setAlbumArt(final Uri albumArt)
     {
         Picasso.with(getApplicationContext()).load(albumArt).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
 
-                imageViewTop.setBackground(new BitmapDrawable(getApplicationContext().getResources(), bitmap));
+                if ( Build.VERSION.SDK_INT >= 16) {
+                    imageViewTop.setBackground(new BitmapDrawable(getApplicationContext().getResources(), bitmap));
 
+
+                } else {
+                    Picasso.with(getApplicationContext()).load(albumArt).into(imageViewTop);
+
+                }
             }
 
             @Override

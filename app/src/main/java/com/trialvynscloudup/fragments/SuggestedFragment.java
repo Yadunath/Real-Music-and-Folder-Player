@@ -26,6 +26,9 @@ public class SuggestedFragment extends Fragment {
     RecyclerView gridView;
     private GridLayoutManager mLayoutManager;
 
+    private int index = -1;
+    private int top = -1;
+
     public SuggestedFragment() {
         // Required empty public constructor
     }
@@ -63,9 +66,29 @@ public class SuggestedFragment extends Fragment {
         super.onResume();
         CommonUtility commonUtility=new CommonUtility();
         commonUtility.setCurrentFragmentId(1);
+        if(index != -1)
+        {
+            mLayoutManager.scrollToPositionWithOffset( index, top);
+        }
+
 
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        index = mLayoutManager.findFirstVisibleItemPosition();
+        View v = gridView.getChildAt(0);
+        top = (v == null) ? 0 : (v.getTop() - gridView.getPaddingTop());
+    }
+
+    @Override
+    public void onDestroyView() {
+
+        super.onDestroyView();
+        index=-1;
+        top=-1;
+    }
 
 
     /*              Space divider between recyclerview grid items       */

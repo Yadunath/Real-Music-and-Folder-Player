@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.RemoteException;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import com.trialvynscloudup.activities.PlayBackActivity;
 
@@ -23,17 +24,18 @@ public class PhoneCallBroadcast extends BroadcastReceiver {
 
             if(state.equals(TelephonyManager.EXTRA_STATE_RINGING))
             {
+                
                 stopSong();
             }
 
            else if(state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK))
             {
+                
                 stopSong();
             }
 
            else if (state.equals(TelephonyManager.EXTRA_STATE_IDLE))
             {
-                startSong();
 
             }
         }

@@ -101,22 +101,30 @@
 
         </RelativeLayout>
         <ImageButton
-            android:layout_width="25dp"
-            android:layout_height="25dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:id="@+id/imageButton4"
-            android:background="@drawable/new_repeat"
+            android:src="@drawable/new_repeat"
             android:layout_alignTop="@+id/relativeLayout1"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="25dp"
+            android:layout_marginTop="0dp"
+            android:scaleType="fitXY"
+            android:padding="7dp"
+            android:background="@color/playback_control_bg"
             />
 
         <ImageButton
-            android:layout_width="20dp"
-            android:layout_height="20dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:id="@+id/imageButton5"
-            android:background="@drawable/new_shuffle"
-            android:layout_alignRight="@+id/imageButton4"
-            android:layout_alignBottom="@+id/relativeLayout1"/>
+            android:src="@drawable/new_shuffle"
+            android:layout_alignLeft="@+id/imageButton4"
+            android:layout_alignStart="@+id/imageButton4"
+            android:scaleType="fitXY"
+            android:background="@color/playback_control_bg"
+            android:padding="10dp"
+            android:layout_below="@+id/imageButton4"
+            />
         <ImageButton
             android:layout_width="30dp"
             android:layout_height="30dp"

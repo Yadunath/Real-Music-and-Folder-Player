@@ -1,6 +1,8 @@
 package com.trialvynscloudup.fragments;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -9,6 +11,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +37,8 @@ public class TabFragment extends Fragment {
     ViewPager viewPager;
     TabLayout tabLayout;
     CommonUtility commonUtility=new CommonUtility();
+    
+    
     public TabFragment() {
         // Required empty public constructor
     }
@@ -43,29 +48,32 @@ public class TabFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        
         return inflater.inflate(R.layout.fragment_tab, container, false);
+        
 
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        
         super.onViewCreated(view, savedInstanceState);
         Toolbar toolbar = (Toolbar)view. findViewById(R.id.toolbar);
         ((MainActivity) getActivity()).setSupportActionBar(toolbar);
         final ActionBar ab =  ((MainActivity) getActivity()).getSupportActionBar();
         ab.setHomeAsUpIndicator(R.drawable.ic_menu);
         ab.setDisplayHomeAsUpEnabled(true);
-
-
         viewPager = (ViewPager) view.findViewById(R.id.viewpager);
-         tabLayout = (TabLayout)view. findViewById(R.id.tabs);
-
+        tabLayout = (TabLayout)view. findViewById(R.id.tabs);
+ 
 
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        
         super.onActivityCreated(savedInstanceState);
+        
         if (CommonUtility.developementStatus)
         {
 
@@ -83,10 +91,11 @@ public class TabFragment extends Fragment {
 
     @Override
     public void onResume() {
+        
         super.onResume();
 
     }
-
+    
     private void setupViewPager(ViewPager viewPager) {
         commonUtility.setCurrentFragmentId(1);
         Adapter adapter = new Adapter(getChildFragmentManager());
