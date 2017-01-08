@@ -11,8 +11,8 @@ Folder player also list songs according to sub folders.
 
 Screenshots
 ============
-<img src="https://image.winudf.com/755/01281d3c92c6dc95/screen-3=x800.jpg" width=480 height=750>
-<img src="https://image.winudf.com/520/01281d3767fb579a/screen-1=x800.jpg" width=450 height=750>
+<img src="https://image.winudf.com/755/01281d3c92c6dc95/screen-3=x800.jpg" width=400 height=700>
+<img src="https://image.winudf.com/520/01281d3767fb579a/screen-1=x800.jpg" width=400 height=700>
 <img src="https://image.winudf.com/754/01281d402b966f5c/screen-4=x800.jpg" width=400 height=700>
 
 
