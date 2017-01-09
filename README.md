@@ -26,7 +26,6 @@ Yedunath Narayanan- yadunath.narayanan@gmail.com
 
 Libraries Used
 ===========================
-* LicensesDialogLibrary - https://github.com/Wicowyn/LicensesDialogLibrary
 * Picasso - https://github.com/square/picasso
 * QuickScroll - https://github.com/andraskindler/quickscroll
 * Google Analytics - https://developers.google.com/analytics/devguides/collection/android/resources
